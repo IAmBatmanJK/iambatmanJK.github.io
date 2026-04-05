@@ -50,27 +50,100 @@
 
         p.subtitle { color: var(--text-muted); margin-bottom: 20px; font-size: 1.05rem; font-weight: 500; }
 
+        /* --- TAB NAVIGATION --- */
+        input[name="tabs"] { display: none; }
+        
+        .tab-nav { 
+            display: flex; gap: 10px; margin-bottom: 24px; width: 100%; justify-content: center; flex-wrap: wrap; 
+        }
+        
+        .tab-nav label {
+            padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 20px; cursor: pointer; font-weight: 600; color: var(--text-muted); 
+            transition: all 0.3s; font-size: 0.95rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab-nav label:hover { color: var(--text-main); border-color: var(--primary); }
+        
+        #tab-game:checked ~ .tab-nav label[for="tab-game"],
+        #tab-glossary:checked ~ .tab-nav label[for="tab-glossary"],
+        #tab-tree:checked ~ .tab-nav label[for="tab-tree"] {
+            background: rgba(6, 182, 212, 0.1); color: var(--primary); border-color: var(--primary);
+        }
+
+        .tab-content { display: none; width: 100%; animation: slideDown 0.4s ease-out; }
+        
+        #tab-game:checked ~ #content-game,
+        #tab-glossary:checked ~ #content-glossary,
+        #tab-tree:checked ~ #content-tree { display: block; }
+
+        /* --- GLOSSARY CSS --- */
+        .glossary-controls {
+            display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 16px; width: 100%;
+        }
+        .glossary-controls label { font-weight: 600; color: var(--text-muted); font-size: 0.9rem;}
+        .glossary-controls select {
+            padding: 6px 12px; background-color: var(--bg-color); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-main); font-family: inherit; font-weight: 500; outline: none; cursor: pointer;
+        }
+        .glossary-card {
+            background-color: var(--card-bg); padding: 20px; border-radius: var(--radius);
+            border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 16px;
+        }
+        .glossary-category { 
+            color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; 
+            font-weight: 700; margin-bottom: 8px; display: inline-block; 
+            background: rgba(139, 92, 246, 0.15); padding: 4px 10px; border-radius: 6px; 
+        }
+        .glossary-term { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+        .glossary-def { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 12px;}
+        .glossary-example {
+            background: rgba(6, 182, 212, 0.05); border-left: 3px solid var(--primary);
+            padding: 10px 14px; font-size: 0.9rem; color: var(--text-main); border-radius: 0 6px 6px 0;
+        }
+        .glossary-example strong { color: var(--primary); }
+
+        /* --- TREE VISUALIZER CSS --- */
+        .tree-root { 
+            background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); 
+            padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); 
+        }
+        .tree-root summary { 
+            font-weight: 700; font-size: 1.1rem; color: var(--primary); cursor: pointer; outline: none; 
+            padding: 8px; border-radius: 8px; transition: background 0.2s; list-style: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .tree-root summary::-webkit-details-marker { display: none; }
+        .tree-root summary:before { content: '📁'; font-size: 1.2rem; }
+        .tree-root[open] summary:before { content: '📂'; }
+        .tree-root summary:hover { background: rgba(255,255,255,0.05); }
+        .tree-branch { 
+            margin-left: 24px; padding-left: 16px; border-left: 2px solid rgba(6, 182, 212, 0.3); 
+            margin-top: 12px; display: flex; flex-direction: column; gap: 8px;
+        }
+        .tree-leaf { 
+            padding: 8px 12px; color: var(--text-main); font-size: 0.95rem; 
+            background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border);
+        }
+
+        /* --- GAME CSS --- */
         .game-header {
             display: flex; justify-content: space-between; align-items: center;
             width: 100%; margin-bottom: 24px; background-color: var(--card-bg);
             padding: 12px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow);
         }
-
         select#difficulty-select {
             padding: 8px 12px; background-color: var(--bg-color); border: 1px solid var(--border);
             border-radius: 8px; color: var(--text-main); font-family: inherit; font-weight: 500;
             font-size: 0.95rem; outline: none; cursor: pointer; transition: border-color 0.3s;
         }
         select#difficulty-select:focus { border-color: var(--primary); }
-
         .tracker {
             font-weight: 600; color: var(--primary); font-size: 0.95rem; background: rgba(6, 182, 212, 0.1);
             padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(6, 182, 212, 0.2);
         }
-
         #game-board { width: 100%; }
         #hints-container { margin-bottom: 16px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
-
         .hint-card {
             background-color: var(--card-bg); padding: 20px; border-radius: var(--radius);
             border: 1px solid var(--border); border-left: 6px solid var(--primary);
@@ -78,7 +151,6 @@
         }
         .hint-title { font-weight: 600; color: var(--text-muted); margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
         .hint-text { font-size: 1.05rem; color: var(--text-main); }
-
         #extra-clue-container { width: 100%; display: flex; justify-content: center; margin-bottom: 24px; min-height: 40px; }
         #clue-btn {
             background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3);
@@ -91,30 +163,22 @@
             padding: 12px 20px; border-radius: var(--radius); border: 1px dashed rgba(245, 158, 11, 0.4);
             font-size: 0.95rem; font-weight: 500; width: 100%; text-align: center; animation: slideDown 0.3s ease-out;
         }
-
         #input-section { display: flex; width: 100%; gap: 12px; margin-bottom: 24px; position: relative; align-items: center; }
         .autocomplete-wrapper { position: relative; flex-grow: 1; display: flex; align-items: center; }
-        
-        .search-icon {
-            position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;
-            width: 20px; height: 20px;
-        }
-
-        input {
+        .search-icon { position: absolute; left: 14px; color: var(--text-muted); pointer-events: none; width: 20px; height: 20px; }
+        input[type="text"] {
             width: 100%; padding: 14px 40px 14px 42px; background-color: var(--bg-color);
             border: 1px solid var(--border); border-radius: var(--radius); font-size: 1rem;
             font-family: inherit; color: var(--text-main); transition: all 0.3s ease;
             outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
-        input::placeholder { color: var(--text-muted); }
-
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
+        input[type="text"]::placeholder { color: var(--text-muted); }
         .dropdown-toggle {
             position: absolute; right: 12px; background: none; border: none; color: var(--text-muted);
             cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;
         }
         .dropdown-toggle:hover { color: var(--primary); }
-
         .autocomplete-list {
             position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg);
             border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
@@ -127,7 +191,6 @@
         .autocomplete-item-alias { font-size: 0.75rem; color: var(--primary); font-weight: 600; }
         .autocomplete-item:last-child { border-bottom: none; }
         .autocomplete-item:hover { background-color: rgba(6, 182, 212, 0.1); color: var(--primary); }
-
         button.primary-btn {
             padding: 14px 24px; background: linear-gradient(135deg, var(--primary), #0284c7);
             color: white; border: none; border-radius: var(--radius); font-weight: 700; font-size: 1rem;
@@ -136,7 +199,6 @@
         }
         button.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.4); }
         button.primary-btn:disabled { background: #334155; color: #94a3b8; box-shadow: none; cursor: not-allowed; transform: none; }
-
         #guesses-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
         .guess-row {
             padding: 14px 16px; font-weight: 500; border-radius: var(--radius); text-align: left;
@@ -145,12 +207,10 @@
         .guess-row.correct { background-color: rgba(16, 185, 129, 0.1); color: var(--correct); border: 1px solid rgba(16, 185, 129, 0.3); }
         .guess-row.incorrect { background-color: rgba(239, 68, 68, 0.1); color: var(--incorrect); border: 1px solid rgba(239, 68, 68, 0.3); }
         .guess-number { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
-
         #message-container { margin-top: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
         #message { font-weight: 700; font-size: 1.25rem; }
         #play-again-btn { display: none; background: linear-gradient(135deg, var(--accent), #6d28d9); box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3); margin-top: 10px; }
         #play-again-btn:hover { box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4); }
-
         #post-game-info {
             display: none; width: 100%; margin-top: 10px; background-color: var(--card-bg);
             border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
@@ -170,7 +230,6 @@
             border-top: 1px solid var(--border); margin-top: 10px; padding-top: 15px;
         }
         .info-content strong { color: var(--text-main); }
-
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -182,61 +241,315 @@
 
     <h1>DSMdle - by mebel</h1>
     <p class="subtitle">Azzy Cat Clinicals</p>
+
+    <input type="radio" id="tab-game" name="tabs" checked>
+    <input type="radio" id="tab-glossary" name="tabs">
+    <input type="radio" id="tab-tree" name="tabs">
+
+    <div class="tab-nav">
+        <label for="tab-game">Play Game</label>
+        <label for="tab-glossary">Clinical Glossary</label>
+        <label for="tab-tree">DSM-5 Map</label>
+    </div>
     
-    <div class="game-header">
-        <select id="difficulty-select" onchange="handleDifficultyChange()">
-            <option value="All">All Difficulties</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-            <option value="Very Hard">Very Hard</option>
-        </select>
-        <div id="case-tracker" class="tracker">Loading...</div>
+    <div id="content-game" class="tab-content">
+        <div class="game-header">
+            <select id="difficulty-select" onchange="handleDifficultyChange()">
+                <option value="All">All Difficulties</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+                <option value="Very Hard">Very Hard</option>
+            </select>
+            <div id="case-tracker" class="tracker">Loading...</div>
+        </div>
+
+        <div id="game-board">
+            <div id="hints-container"></div>
+
+            <div id="extra-clue-container">
+                <button id="clue-btn" onclick="revealExtraClue()">💡 Need a Hint?</button>
+                <div id="clue-text-display"></div>
+            </div>
+
+            <div id="input-section">
+                <div class="autocomplete-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="guess-input" placeholder="Search a DSM-5 diagnosis (e.g., PTSD, OCD)..." autocomplete="off">
+                    <button class="dropdown-toggle" id="dropdown-toggle" aria-label="Toggle drop-down">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="autocomplete-list" id="autocomplete-list"></div>
+                </div>
+                <button class="primary-btn" id="submit-btn" onclick="handleGuess()">Diagnose</button>
+            </div>
+
+            <div id="guesses-container"></div>
+
+            <div id="message-container">
+                <div id="message"></div>
+                
+                <details id="post-game-info">
+                    <summary>
+                        📚 DSM-5 Clinical Insights & Facts
+                        <svg class="summary-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </summary>
+                    <div class="info-content" id="post-game-info-content"></div>
+                </details>
+
+                <button class="primary-btn" id="play-again-btn" onclick="loadNextCaseInQueue()">Load Next Case</button>
+            </div>
+        </div>
     </div>
 
-    <div id="game-board">
-        <div id="hints-container"></div>
-
-        <div id="extra-clue-container">
-            <button id="clue-btn" onclick="revealExtraClue()">💡 Need a Hint?</button>
-            <div id="clue-text-display"></div>
+    <div id="content-glossary" class="tab-content">
+        <p class="subtitle" style="text-align: center; margin-top: -10px;">Master the vocabulary used in diagnostic criteria.</p>
+        
+        <div class="glossary-controls">
+            <label for="glossary-sort">Sort by:</label>
+            <select id="glossary-sort" onchange="renderGlossary()">
+                <option value="category">DSM-5 Category</option>
+                <option value="alpha">Alphabetical (A-Z)</option>
+            </select>
         </div>
 
-        <div id="input-section">
-            <div class="autocomplete-wrapper">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" id="guess-input" placeholder="Search a DSM-5 diagnosis (e.g., PTSD, OCD)..." autocomplete="off">
-                <button class="dropdown-toggle" id="dropdown-toggle" aria-label="Toggle drop-down">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-                <div class="autocomplete-list" id="autocomplete-list"></div>
+        <div id="glossary-container"></div>
+    </div>
+
+    <div id="content-tree" class="tab-content">
+        <p class="subtitle" style="text-align: center; margin-top: -10px;">Understand the structural hierarchy of diagnoses.</p>
+
+        <details class="tree-root">
+            <summary>Neurodevelopmental Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Autism Spectrum Disorder (ASD)</div>
+                <div class="tree-leaf">Attention-Deficit/Hyperactivity Disorder (ADHD)</div>
+                <div class="tree-leaf">Specific Learning Disorder</div>
+                <div class="tree-leaf">Tourette's Disorder</div>
+                <div class="tree-leaf">Intellectual Disability</div>
             </div>
-            <button class="primary-btn" id="submit-btn" onclick="handleGuess()">Diagnose</button>
-        </div>
+        </details>
 
-        <div id="guesses-container"></div>
+        <details class="tree-root">
+            <summary>Schizophrenia Spectrum & Psychotic Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Schizophrenia</div>
+                <div class="tree-leaf">Schizoaffective Disorder</div>
+                <div class="tree-leaf">Schizophreniform Disorder</div>
+                <div class="tree-leaf">Brief Psychotic Disorder</div>
+                <div class="tree-leaf">Delusional Disorder</div>
+            </div>
+        </details>
 
-        <div id="message-container">
-            <div id="message"></div>
-            
-            <details id="post-game-info">
-                <summary>
-                    📚 DSM-5 Clinical Insights & Facts
-                    <svg class="summary-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </summary>
-                <div class="info-content" id="post-game-info-content"></div>
-            </details>
+        <details class="tree-root">
+            <summary>Bipolar and Related Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Bipolar I Disorder</div>
+                <div class="tree-leaf">Bipolar II Disorder</div>
+                <div class="tree-leaf">Cyclothymic Disorder</div>
+            </div>
+        </details>
 
-            <button class="primary-btn" id="play-again-btn" onclick="loadNextCaseInQueue()">Load Next Case</button>
-        </div>
+        <details class="tree-root">
+            <summary>Depressive Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Major Depressive Disorder (MDD)</div>
+                <div class="tree-leaf">Persistent Depressive Disorder (Dysthymia)</div>
+                <div class="tree-leaf">Disruptive Mood Dysregulation Disorder (DMDD)</div>
+                <div class="tree-leaf">Premenstrual Dysphoric Disorder (PMDD)</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Anxiety Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Specific Phobia</div>
+                <div class="tree-leaf">Social Anxiety Disorder</div>
+                <div class="tree-leaf">Panic Disorder</div>
+                <div class="tree-leaf">Agoraphobia</div>
+                <div class="tree-leaf">Generalized Anxiety Disorder (GAD)</div>
+                <div class="tree-leaf">Separation Anxiety Disorder</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Obsessive-Compulsive and Related Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Obsessive-Compulsive Disorder (OCD)</div>
+                <div class="tree-leaf">Body Dysmorphic Disorder</div>
+                <div class="tree-leaf">Hoarding Disorder</div>
+                <div class="tree-leaf">Trichotillomania (Hair-Pulling)</div>
+                <div class="tree-leaf">Excoriation (Skin-Picking)</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Trauma- and Stressor-Related Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Posttraumatic Stress Disorder (PTSD)</div>
+                <div class="tree-leaf">Acute Stress Disorder</div>
+                <div class="tree-leaf">Adjustment Disorders</div>
+                <div class="tree-leaf">Reactive Attachment Disorder (RAD)</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Feeding and Eating Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Anorexia Nervosa</div>
+                <div class="tree-leaf">Bulimia Nervosa</div>
+                <div class="tree-leaf">Binge-Eating Disorder</div>
+                <div class="tree-leaf">Pica</div>
+                <div class="tree-leaf">Avoidant/Restrictive Food Intake Disorder (ARFID)</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Substance-Related and Addictive Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Alcohol Use Disorder</div>
+                <div class="tree-leaf">Cannabis Use Disorder</div>
+                <div class="tree-leaf">Opioid Use Disorder</div>
+                <div class="tree-leaf">Stimulant Use Disorder</div>
+                <div class="tree-leaf">Gambling Disorder</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Personality Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Cluster A: Paranoid, Schizoid, Schizotypal</div>
+                <div class="tree-leaf">Cluster B: Antisocial, Borderline, Histrionic, Narcissistic</div>
+                <div class="tree-leaf">Cluster C: Avoidant, Dependent, Obsessive-Compulsive (OCPD)</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Neurocognitive Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Delirium</div>
+                <div class="tree-leaf">Major Neurocognitive Disorder (Dementia)</div>
+                <div class="tree-leaf">Mild Neurocognitive Disorder</div>
+            </div>
+        </details>
+
+        <details class="tree-root">
+            <summary>Sleep-Wake Disorders</summary>
+            <div class="tree-branch">
+                <div class="tree-leaf">Insomnia Disorder</div>
+                <div class="tree-leaf">Narcolepsy</div>
+                <div class="tree-leaf">Obstructive Sleep Apnea Hypopnea</div>
+            </div>
+        </details>
     </div>
 
     <script>
+        // ==================== GLOSSARY DATA & LOGIC (Exactly 40 Terms) ====================
+        const glossaryData = [
+            // Depressive Disorders (4)
+            { term: "Anhedonia", category: "Depressive Disorders", def: "A markedly diminished interest or pleasure in all, or almost all, activities most of the day.", example: "During intake, the patient states they haven't touched their guitar in months, even though playing music used to be their greatest joy." },
+            { term: "Psychomotor Agitation", category: "Depressive Disorders", def: "Excessive motor activity associated with a feeling of inner tension (e.g., pacing, fidgeting).", example: "The patient cannot remain seated during the session, constantly pacing the room and aggressively wringing their hands." },
+            { term: "Hypersomnolence", category: "Depressive Disorders", def: "Excessive sleepiness, as evidenced by prolonged sleep episodes or daytime sleeping.", example: "The client reports sleeping 14 hours every night but still requires a three-hour nap just to get through the afternoon." },
+            { term: "Melancholia", category: "Depressive Disorders", def: "A severe form of depression characterized by a complete loss of pleasure and a lack of mood reactivity.", example: "The patient wins a major award at work but feels absolutely nothing; they wake up at 3 AM daily feeling physically crushed by despair." },
+            
+            // Anxiety Disorders (4)
+            { term: "Palpitations", category: "Anxiety Disorders", def: "A sensation in which a person is aware of an irregular, hard, or rapid heartbeat.", example: "A patient rushes to the ER convinced they are having a heart attack because their heart feels like it is 'pounding out of their chest' while sitting at their desk." },
+            { term: "Autonomic Arousal", category: "Anxiety Disorders", def: "The physical activation of the sympathetic nervous system, resulting in sweating, trembling, and shortness of breath.", example: "When asked to speak in public, the patient immediately breaks into a cold sweat and their hands shake visibly." },
+            { term: "Anticipatory Anxiety", category: "Anxiety Disorders", def: "Fear and worry experienced weeks or days in advance of a feared event or situation.", example: "A client spends two straight weeks feeling sick to their stomach worrying about a 5-minute flight they have to take next month." },
+            { term: "Phobic Stimulus", category: "Anxiety Disorders", def: "The specific object or situation that consistently provokes an immediate, severe anxiety response.", example: "A patient immediately leaps onto a table, hyperventilating, the second they see a spider (the stimulus) on the floor." },
+
+            // Trauma- and Stressor-Related (4)
+            { term: "Hypervigilance", category: "Trauma- and Stressor-Related", def: "An enhanced state of sensory sensitivity accompanied by an exaggerated intensity to detect threats.", example: "A combat veteran sits facing the door at every restaurant, constantly scanning the room and jumping at the sound of dropping silverware." },
+            { term: "Depersonalization", category: "Trauma- and Stressor-Related", def: "The experience of feeling detached from, and as if one is an outside observer of, one's own mental processes or body.", example: "The patient describes feeling like they are floating above their own body, watching themselves talk but feeling completely disconnected from their voice." },
+            { term: "Derealization", category: "Trauma- and Stressor-Related", def: "The experience of feeling detached from one's surroundings, as if the world is unreal or dreamlike.", example: "The client describes walking down their own street, but says it feels like a movie set and the trees look fake and two-dimensional." },
+            { term: "Flashback", category: "Trauma- and Stressor-Related", def: "A dissociative state in which a person feels or acts as if a traumatic event were occurring in the present moment.", example: "After hearing a car backfire, a trauma survivor dives behind a couch, genuinely believing they are back in a warzone." },
+
+            // Bipolar Disorders (4)
+            { term: "Mania", category: "Bipolar and Related Disorders", def: "A distinct period of abnormally and persistently elevated, expansive, or irritable mood, lasting at least 1 week.", example: "A patient stays awake for four days straight, painting their entire house, and feels entirely euphoric despite the lack of sleep." },
+            { term: "Hypomania", category: "Bipolar and Related Disorders", def: "A milder form of mania lasting at least 4 days, not severe enough to cause marked impairment in functioning.", example: "A patient has an unusual burst of highly productive energy for five days, finishing projects rapidly without needing much sleep, but keeping their job intact." },
+            { term: "Flight of Ideas", category: "Bipolar and Related Disorders", def: "A nearly continuous flow of accelerated speech with abrupt changes from topic to topic.", example: "The patient rapidly talks about their new business, which reminds them of a bird they saw, which means the government is tracking them, all in one breath." },
+            { term: "Grandiosity", category: "Bipolar and Related Disorders", def: "An inflated sense of self-esteem, power, knowledge, or identity.", example: "A college sophomore abruptly drops out because they firmly believe they have naturally acquired the knowledge to cure cancer without a degree." },
+
+            // Schizophrenia Spectrum (4)
+            { term: "Delusion", category: "Schizophrenia Spectrum & Psychotic Disorders", def: "A fixed, false belief that is resistant to reason or confrontation with actual fact.", example: "The client firmly believes that the local news anchor is sending them secret, coded romantic messages through the television broadcasts." },
+            { term: "Hallucination", category: "Schizophrenia Spectrum & Psychotic Disorders", def: "A perception-like experience with the clarity of a true perception but without external stimulation.", example: "The patient physically turns their head to argue with a voice that is criticizing them, even though the room is entirely empty." },
+            { term: "Flat Affect", category: "Schizophrenia Spectrum & Psychotic Disorders", def: "A severe reduction in the expression of emotions; the face appears immobile and the voice lacks inflection.", example: "While describing the tragic loss of their family home, the patient's face remains totally blank and their voice is entirely monotone." },
+            { term: "Avolition", category: "Schizophrenia Spectrum & Psychotic Disorders", def: "A decrease in the motivation to initiate and perform self-directed purposeful activities.", example: "A patient sits in a chair staring at the wall for six hours, lacking the internal drive to even get up to make a sandwich." },
+
+            // Obsessive-Compulsive (4)
+            { term: "Obsession", category: "Obsessive-Compulsive and Related Disorders", def: "Recurrent and persistent thoughts, urges, or images that are experienced as intrusive and unwanted.", example: "A patient cannot stop the horrifying, intrusive thought that they might suddenly steer their car into oncoming traffic." },
+            { term: "Compulsion", category: "Obsessive-Compulsive and Related Disorders", def: "Repetitive behaviors or mental acts that an individual feels driven to perform in response to an obsession.", example: "To neutralize the terrifying thought of a car crash, the patient must physically tap their steering wheel exactly 14 times before driving." },
+            { term: "Ego-dystonic", category: "Obsessive-Compulsive and Related Disorders", def: "Thoughts, impulses, or behaviors that are felt to be repugnant, distressing, or inconsistent with one's self-concept.", example: "A devoutly religious patient is horrified and disgusted by their own intrusive blasphemous thoughts, viewing them as alien to who they are." },
+            { term: "Trichotillomania", category: "Obsessive-Compulsive and Related Disorders", def: "The recurrent pulling out of one's own hair, resulting in hair loss.", example: "A stressed student absentmindedly pulls out their eyelashes while studying, later feeling deep shame when looking in the mirror." },
+
+            // Personality Disorders (4)
+            { term: "Splitting", category: "Personality Disorders", def: "The inability to integrate the positive and negative qualities of oneself or others into a cohesive image (all-or-nothing thinking).", example: "A patient declares their new therapist is an 'absolute genius savior' on Tuesday, but by Thursday calls them a 'worthless monster' for being two minutes late." },
+            { term: "Affective Lability", category: "Personality Disorders", def: "Rapid and extreme shifts in emotional state.", example: "Within a ten-minute span, a patient goes from sobbing uncontrollably to laughing hysterically to screaming in rage over a minor inconvenience." },
+            { term: "Ego-syntonic", category: "Personality Disorders", def: "Behaviors, values, or feelings that are acceptable to the needs and goals of the ego (the patient doesn't see them as a problem).", example: "A patient with Narcissistic traits fully believes their arrogant, dismissive behavior is completely justified because they are simply 'better than everyone else.'" },
+            { term: "Ideas of Reference", category: "Personality Disorders", def: "The feeling that casual incidents and external events have a particular and unusual meaning specific to the person.", example: "A patient sees two strangers laughing across the street and becomes absolutely convinced they are laughing specifically at them." },
+
+            // Neurodevelopmental (4)
+            { term: "Echolalia", category: "Neurodevelopmental Disorders", def: "The pathological, parrot-like, and apparently senseless repetition of a word or phrase just spoken by another person.", example: "Therapist: 'How are you today?' Patient: 'How are you today? How are you today?'" },
+            { term: "Stimming (Stereotypy)", category: "Neurodevelopmental Disorders", def: "Repetitive body movements or repetitive movement of objects, often used for self-soothing.", example: "A child rapidly flaps their hands and rocks back and forth when entering a noisy, visually overwhelming grocery store." },
+            { term: "Executive Dysfunction", category: "Neurodevelopmental Disorders", def: "Weakness in the cognitive processes that organize behavior (planning, time management, task initiation).", example: "An adult with ADHD completely forgets to pay their electric bill despite having the money and seeing the envelope on their desk every day." },
+            { term: "Tic", category: "Neurodevelopmental Disorders", def: "A sudden, rapid, recurrent, nonrhythmic motor movement or vocalization.", example: "A child involuntarily clears their throat and forcefully blinks their eyes every thirty seconds during class, increasing when stressed." },
+
+            // Feeding and Eating (3)
+            { term: "Binge Eating", category: "Feeding and Eating Disorders", def: "Eating an amount of food that is definitely larger than what most individuals would eat, accompanied by a sense of lack of control.", example: "A patient eats two whole pizzas and a gallon of ice cream in under 30 minutes, feeling entirely powerless to stop the behavior." },
+            { term: "Purging", category: "Feeding and Eating Disorders", def: "Inappropriate compensatory behaviors to prevent weight gain, such as self-induced vomiting or laxative misuse.", example: "Immediately following a large holiday meal, the patient locks themselves in the bathroom and forces themselves to vomit." },
+            { term: "Dietary Restriction", category: "Feeding and Eating Disorders", def: "Severe limitation of energy intake relative to requirements, leading to significantly low body weight.", example: "A teenager limits their intake to exactly 400 calories a day out of an intense fear of gaining weight, despite being visibly emaciated." },
+
+            // Substance-Related (3)
+            { term: "Tolerance", category: "Substance-Related and Addictive Disorders", def: "A need for markedly increased amounts of the substance to achieve intoxication or desired effect.", example: "A patient who used to get drunk off two beers now requires an entire six-pack to feel the exact same intoxicating effect." },
+            { term: "Withdrawal", category: "Substance-Related and Addictive Disorders", def: "A substance-specific problematic behavioral change, with physiological symptoms, that is due to the cessation of heavy substance use.", example: "A patient who suddenly stops drinking alcohol experiences severe hand tremors, nausea, and intense sweating the next morning." },
+            { term: "Craving", category: "Substance-Related and Addictive Disorders", def: "A strong desire or urge to use a substance.", example: "While trying to quit smoking, a patient feels an intense, overwhelming physical itch in their brain demanding they go buy a cigarette." },
+
+            // Neurocognitive & Sleep (2)
+            { term: "Aphasia", category: "Neurocognitive Disorders", def: "An impairment of language, affecting the production or comprehension of speech and the ability to read or write.", example: "An elderly patient with dementia knows they want a pen, but cannot recall the word for it, repeatedly calling it a 'writing stick'." },
+            { term: "Cataplexy", category: "Sleep-Wake Disorders", def: "Sudden, brief episodes of bilateral loss of muscle tone with maintained consciousness, often triggered by strong emotions.", example: "A patient hears a hilarious joke, begins laughing, and immediately collapses to the floor as their leg muscles temporarily paralyze." }
+        ];
+
+        function renderGlossary() {
+            const container = document.getElementById('glossary-container');
+            const sortType = document.getElementById('glossary-sort').value;
+            container.innerHTML = '';
+
+            let sortedData = [...glossaryData];
+            
+            if (sortType === 'alpha') {
+                sortedData.sort((a, b) => a.term.localeCompare(b.term));
+            } else {
+                sortedData.sort((a, b) => {
+                    if (a.category === b.category) {
+                        return a.term.localeCompare(b.term);
+                    }
+                    return a.category.localeCompare(b.category);
+                });
+            }
+
+            sortedData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glossary-card';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                        <span class="glossary-category">${item.category}</span>
+                    </div>
+                    <div class="glossary-term">${item.term}</div>
+                    <div class="glossary-def">${item.def}</div>
+                    <div class="glossary-example">
+                        <strong>Clinical Sign:</strong> <i>${item.example}</i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ==================== EXISTING GAME DATA & LOGIC ====================
         const wordBank = [
             "Acute Stress Disorder", "Adjustment Disorder", "Agoraphobia", "Alcohol Intoxication", "Alcohol Use Disorder", 
             "Alcohol Withdrawal", "Anorexia Nervosa", "Antisocial Personality Disorder", "Anxiety Disorder Due to Another Medical Condition", 
@@ -389,7 +702,7 @@
             {
                 answer: "Obsessive-Compulsive Disorder", difficulty: "Easy",
                 hints: ["A 30-year-old woman presents with hands that are raw, red, and cracked from excessive washing.", "She is tormented by intrusive, recurrent thoughts that her home is covered in deadly pathogens.", "To temporarily alleviate the anxiety these thoughts cause, she washes her hands exactly ten times.", "She logically recognizes that her routine is excessive, but feels entirely unable to resist the urge.", "These daily rituals consume over three hours of her time, causing major disruptions to her life."],
-                info: "<strong>Description:</strong> Obsessive-Compulsive Disorder (OCD) is characterized by the presence of obsessions, compulsions, or both. Obsessions are recurrent, persistent, and intrusive thoughts or urges that cause marked anxiety. Compulsions are repetitive behaviors or mental acts that an individual feels driven to perform in response to an obsession, aimed at neutralizing the distress. The rituals are time-consuming (taking more than 1 hour a day) and cause clinically significant impairment. Exposure and Response Prevention (ERP) is the gold-standard therapeutic intervention.<br><br><strong>Fun Fact:</strong> Acknowledging its distinct neurobiological underpinnings, the DSM-5 removed OCD from the Anxiety Disorders category and created its own specific chapter."
+                info: "<strong>Description:</strong> Obsessive-Compulsive Disorder (OCPD) is characterized by the presence of obsessions, compulsions, or both. Obsessions are recurrent, persistent, and intrusive thoughts or urges that cause marked anxiety. Compulsions are repetitive behaviors or mental acts that an individual feels driven to perform in response to an obsession, aimed at neutralizing the distress. The rituals are time-consuming (taking more than 1 hour a day) and cause clinically significant impairment. Exposure and Response Prevention (ERP) is the gold-standard therapeutic intervention.<br><br><strong>Fun Fact:</strong> Acknowledging its distinct neurobiological underpinnings, the DSM-5 removed OCD from the Anxiety Disorders category and created its own specific chapter."
             },
             {
                 answer: "Specific Phobia", difficulty: "Easy",
@@ -811,6 +1124,7 @@
         const postGameInfoContent = document.getElementById('post-game-info-content');
 
         window.onload = () => {
+            renderGlossary();
             setupAutocomplete();
             handleDifficultyChange(); 
         };
