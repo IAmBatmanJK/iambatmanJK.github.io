@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSMdle - by mebel and azzy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700;800&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #06b6d4;
+            --primary-hover: #0891b2;
+            --accent: #8b5cf6;
+            --correct: #10b981;
+            --incorrect: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        p.subtitle { color: var(--text-muted); margin-bottom: 20px; font-size: 1.05rem; font-weight: 500; }
+
+        .game-header {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin-bottom: 24px; background-color: var(--card-bg);
+            padding: 12px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow);
+        }
+
+        select#difficulty-select {
+            padding: 8px 12px; background-color: var(--bg-color); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-main); font-family: inherit; font-weight: 500;
+            font-size: 0.95rem; outline: none; cursor: pointer; transition: border-color 0.3s;
+        }
+        select#difficulty-select:focus { border-color: var(--primary); }
+
+        .tracker {
+            font-weight: 600; color: var(--primary); font-size: 0.95rem; background: rgba(6, 182, 212, 0.1);
+            padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        #game-board { width: 100%; }
+        #hints-container { margin-bottom: 16px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+
+        .hint-card {
+            background-color: var(--card-bg); padding: 20px; border-radius: var(--radius);
+            border: 1px solid var(--border); border-left: 6px solid var(--primary);
+            box-shadow: var(--shadow); animation: slideDown 0.4s ease-out;
+        }
+        .hint-title { font-weight: 600; color: var(--text-muted); margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .hint-text { font-size: 1.05rem; color: var(--text-main); }
+
+        #extra-clue-container { width: 100%; display: flex; justify-content: center; margin-bottom: 24px; min-height: 40px; }
+        #clue-btn {
+            background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        #clue-btn:hover { background: rgba(245, 158, 11, 0.2); transform: scale(1.05); }
+        #clue-text-display {
+            display: none; background-color: rgba(245, 158, 11, 0.1); color: var(--warning);
+            padding: 12px 20px; border-radius: var(--radius); border: 1px dashed rgba(245, 158, 11, 0.4);
+            font-size: 0.95rem; font-weight: 500; width: 100%; text-align: center; animation: slideDown 0.3s ease-out;
+        }
+
+        #input-section { display: flex; width: 100%; gap: 12px; margin-bottom: 24px; position: relative; align-items: center; }
+        .autocomplete-wrapper { position: relative; flex-grow: 1; display: flex; align-items: center; }
+        
+        .search-icon {
+            position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;
+            width: 20px; height: 20px;
+        }
+
+        input {
+            width: 100%; padding: 14px 40px 14px 42px; background-color: var(--bg-color);
+            border: 1px solid var(--border); border-radius: var(--radius); font-size: 1rem;
+            font-family: inherit; color: var(--text-main); transition: all 0.3s ease;
+            outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
+        input::placeholder { color: var(--text-muted); }
+
+        .dropdown-toggle {
+            position: absolute; right: 12px; background: none; border: none; color: var(--text-muted);
+            cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;
+        }
+        .dropdown-toggle:hover { color: var(--primary); }
+
+        .autocomplete-list {
+            position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg);
+            border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+            max-height: 250px; overflow-y: auto; z-index: 100; display: none; margin-top: 8px;
+        }
+        .autocomplete-item {
+            padding: 12px 16px; cursor: pointer; font-size: 0.95rem; border-bottom: 1px solid var(--border);
+            color: var(--text-main); transition: background-color 0.2s; display: flex; flex-direction: column; gap: 2px;
+        }
+        .autocomplete-item-alias { font-size: 0.75rem; color: var(--primary); font-weight: 600; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background-color: rgba(6, 182, 212, 0.1); color: var(--primary); }
+
+        button.primary-btn {
+            padding: 14px 24px; background: linear-gradient(135deg, var(--primary), #0284c7);
+            color: white; border: none; border-radius: var(--radius); font-weight: 700; font-size: 1rem;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit;
+            box-shadow: 0 4px 6px -1px rgba(6, 182, 212, 0.3);
+        }
+        button.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.4); }
+        button.primary-btn:disabled { background: #334155; color: #94a3b8; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        #guesses-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .guess-row {
+            padding: 14px 16px; font-weight: 500; border-radius: var(--radius); text-align: left;
+            animation: slideDown 0.3s ease-out; display: flex; justify-content: space-between; align-items: center;
+        }
+        .guess-row.correct { background-color: rgba(16, 185, 129, 0.1); color: var(--correct); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .guess-row.incorrect { background-color: rgba(239, 68, 68, 0.1); color: var(--incorrect); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .guess-number { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        #message-container { margin-top: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+        #message { font-weight: 700; font-size: 1.25rem; }
+        #play-again-btn { display: none; background: linear-gradient(135deg, var(--accent), #6d28d9); box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3); margin-top: 10px; }
+        #play-again-btn:hover { box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4); }
+
+        #post-game-info {
+            display: none; width: 100%; margin-top: 10px; background-color: var(--card-bg);
+            border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+            text-align: left; animation: slideDown 0.4s ease-out;
+        }
+        #post-game-info summary {
+            padding: 16px 20px; font-weight: 700; color: var(--primary); cursor: pointer;
+            list-style: none; display: flex; justify-content: space-between; align-items: center;
+            outline: none; border-radius: var(--radius); transition: background-color 0.2s ease;
+        }
+        #post-game-info summary:hover { background-color: rgba(6, 182, 212, 0.05); }
+        #post-game-info summary::-webkit-details-marker { display: none; }
+        .summary-icon { transition: transform 0.3s ease; }
+        #post-game-info[open] .summary-icon { transform: rotate(180deg); }
+        #post-game-info .info-content {
+            padding: 0 20px 20px 20px; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted);
+            border-top: 1px solid var(--border); margin-top: 10px; padding-top: 15px;
+        }
+        .info-content strong { color: var(--text-main); }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body>
+
+    <h1>DSMdle - by mebel</h1>
+    <p class="subtitle">Azzy Cat Clinicals</p>
+    
+    <div class="game-header">
+        <select id="difficulty-select" onchange="handleDifficultyChange()">
+            <option value="All">All Difficulties</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+            <option value="Very Hard">Very Hard</option>
+        </select>
+        <div id="case-tracker" class="tracker">Loading...</div>
+    </div>
+
+    <div id="game-board">
+        <div id="hints-container"></div>
+
+        <div id="extra-clue-container">
+            <button id="clue-btn" onclick="revealExtraClue()">💡 Need a Hint?</button>
+            <div id="clue-text-display"></div>
+        </div>
+
+        <div id="input-section">
+            <div class="autocomplete-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="guess-input" placeholder="Search a DSM-5 diagnosis (e.g., PTSD, OCD)..." autocomplete="off">
+                <button class="dropdown-toggle" id="dropdown-toggle" aria-label="Toggle drop-down">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="autocomplete-list" id="autocomplete-list"></div>
+            </div>
+            <button class="primary-btn" id="submit-btn" onclick="handleGuess()">Diagnose</button>
+        </div>
+
+        <div id="guesses-container"></div>
+
+        <div id="message-container">
+            <div id="message"></div>
+            
+            <details id="post-game-info">
+                <summary>
+                    📚 DSM-5 Clinical Insights & Facts
+                    <svg class="summary-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </summary>
+                <div class="info-content" id="post-game-info-content"></div>
+            </details>
+
+            <button class="primary-btn" id="play-again-btn" onclick="loadNextCaseInQueue()">Load Next Case</button>
+        </div>
+    </div>
+
+    <script>
+        const wordBank = [
+            "Acute Stress Disorder", "Adjustment Disorder", "Agoraphobia", "Alcohol Intoxication", "Alcohol Use Disorder", 
+            "Alcohol Withdrawal", "Anorexia Nervosa", "Antisocial Personality Disorder", "Anxiety Disorder Due to Another Medical Condition", 
+            "Attention-Deficit/Hyperactivity Disorder", "Autism Spectrum Disorder", "Avoidant Personality Disorder", 
+            "Avoidant/Restrictive Food Intake Disorder", "Binge-Eating Disorder", "Bipolar I Disorder", "Bipolar II Disorder", 
+            "Body Dysmorphic Disorder", "Borderline Personality Disorder", "Brief Psychotic Disorder", "Bulimia Nervosa", 
+            "Caffeine Intoxication", "Caffeine Use Disorder", "Caffeine Withdrawal", "Cannabis Intoxication", "Cannabis Use Disorder", 
+            "Cannabis Withdrawal", "Catatonia", "Catatonia Associated With Another Mental Disorder (Catatonia Specifier)", 
+            "Central Sleep Apnea", "Childhood-Onset Fluency Disorder (Stuttering)", "Conduct Disorder", "Conversion Disorder", 
+            "Cyclothymic Disorder", "Delayed Ejaculation", "Delirium", "Delusional Disorder", "Dependent Personality Disorder", 
+            "Depersonalization/Derealization Disorder", "Depressive Disorder Due to Another Medical Condition", 
+            "Developmental Coordination Disorder", "Disinhibited Social Engagement Disorder", "Disruptive Mood Dysregulation Disorder", 
+            "Dissociative Amnesia", "Dissociative Identity Disorder", "Encopresis", "Enuresis", "Erectile Disorder", 
+            "Excoriation Disorder", "Exhibitionistic Disorder", "Factitious Disorder", "Female Orgasmic Disorder", 
+            "Female Sexual Interest/Arousal Disorder", "Fetishistic Disorder", "Frontotemporal Neurocognitive Disorder", 
+            "Frotteuristic Disorder", "Gambling Disorder", "Gender Dysphoria", "Generalized Anxiety Disorder", 
+            "Genito-Pelvic Pain/Penetration Disorder", "Global Developmental Delay", "Hallucinogen Persisting Perception Disorder", 
+            "Histrionic Personality Disorder", "Hoarding Disorder", "Hypersomnolence Disorder", "Illness Anxiety Disorder", 
+            "Inhalant Intoxication", "Inhalant Use Disorder", "Insomnia Disorder", "Intellectual Disability", "Intermittent Explosive Disorder", 
+            "Kleptomania", "Language Disorder", "Major Depressive Disorder", "Major Neurocognitive Disorder", 
+            "Male Hypoactive Sexual Desire Disorder", "Mild Neurocognitive Disorder", "Narcissistic Personality Disorder", "Narcolepsy", 
+            "Nightmare Disorder", "Non-Rapid Eye Movement Sleep Arousal Disorders", "Obsessive-Compulsive Disorder", 
+            "Obsessive-Compulsive Personality Disorder", "Obstructive Sleep Apnea Hypopnea", "Opioid Intoxication", "Opioid Use Disorder", 
+            "Opioid Withdrawal", "Oppositional Defiant Disorder", "Other Hallucinogen Use Disorder", 
+            "Other Specified Attention-Deficit/Hyperactivity Disorder", "Other Specified Trauma- and Stressor-Related Disorder", 
+            "Panic Disorder", "Paranoid Personality Disorder", "Pedophilic Disorder", "Persistent (Chronic) Motor or Vocal Tic Disorder", 
+            "Persistent Depressive Disorder", "Phencyclidine Intoxication", "Phencyclidine Use Disorder", "Pica", 
+            "Posttraumatic Stress Disorder", "Premature (Early) Ejaculation", "Premenstrual Dysphoric Disorder", "Provisional Tic Disorder", 
+            "Psychological Factors Affecting Other Medical Conditions", "Pyromania", "Rapid Eye Movement Sleep Behavior Disorder", 
+            "Reactive Attachment Disorder", "Restless Legs Syndrome", "Rumination Disorder", "Schizoaffective Disorder", "Schizoid Personality Disorder", 
+            "Schizophrenia", "Schizophreniform Disorder", "Schizotypal Personality Disorder", "Sedative, Hypnotic, or Anxiolytic Intoxication", 
+            "Sedative, Hypnotic, or Anxiolytic Use Disorder", "Sedative, Hypnotic, or Anxiolytic Withdrawal", "Selective Mutism", 
+            "Separation Anxiety Disorder", "Sexual Masochism Disorder", "Sexual Sadism Disorder", "Sleep Terrors", 
+            "Sleep-Related Hypoventilation", "Sleepwalking", "Social (Pragmatic) Communication Disorder", "Social Anxiety Disorder", 
+            "Somatic Symptom Disorder", "Specific Learning Disorder", "Specific Phobia", "Speech Sound Disorder", "Stereotypic Movement Disorder", 
+            "Stimulant Intoxication", "Stimulant Use Disorder", "Stimulant Withdrawal", "Tobacco Use Disorder", 
+            "Tobacco Withdrawal", "Tourette's Disorder", "Transvestic Disorder", "Trichotillomania", "Unspecified Catatonia", 
+            "Unspecified Communication Disorder", "Voyeuristic Disorder"
+        ].sort();
+
+        const termAliases = {
+            "adhd": "Attention-Deficit/Hyperactivity Disorder", "asd": "Autism Spectrum Disorder", "ptsd": "Posttraumatic Stress Disorder",
+            "ocd": "Obsessive-Compulsive Disorder", "mdd": "Major Depressive Disorder", "gad": "Generalized Anxiety Disorder",
+            "sad": "Social Anxiety Disorder", "bdd": "Body Dysmorphic Disorder", "did": "Dissociative Identity Disorder",
+            "odd": "Oppositional Defiant Disorder", "pdd": "Persistent Depressive Disorder", "pmdd": "Premenstrual Dysphoric Disorder",
+            "dmdd": "Disruptive Mood Dysregulation Disorder", "aud": "Alcohol Use Disorder", "cud": "Cannabis Use Disorder",
+            "oud": "Opioid Use Disorder", "ied": "Intermittent Explosive Disorder", "rad": "Reactive Attachment Disorder",
+            "dsed": "Disinhibited Social Engagement Disorder", "arfid": "Avoidant/Restrictive Food Intake Disorder",
+            "bpd": "Borderline Personality Disorder", "npd": "Narcissistic Personality Disorder", "aspd": "Antisocial Personality Disorder",
+            "ocpd": "Obsessive-Compulsive Personality Disorder", "fnd": "Conversion Disorder", "osa": "Obstructive Sleep Apnea Hypopnea",
+            "osah": "Obstructive Sleep Apnea Hypopnea", "rem": "Rapid Eye Movement Sleep Behavior Disorder", "sud": "Substance Use Disorder"
+        };
+
+        const casesBank = [
+            {
+                answer: "Bulimia Nervosa", difficulty: "Easy",
+                hints: ["A 22-year-old female patient with a normal BMI presents with significant dental enamel erosion.", "She reports frequent, secretive episodes where she consumes unusually large quantities of food.", "During these binges, she feels entirely powerless to stop eating.", "To counteract her eating, she regularly uses laxatives and self-induces vomiting.", "Her self-worth is predominantly dictated by her body weight and shape."],
+                info: "<strong>Description:</strong> Bulimia Nervosa is an eating disorder characterized by a cycle of binge eating followed by inappropriate compensatory behaviors. Individuals consume excessively large amounts of food in short periods, experiencing a profound loss of control. To avoid weight gain, they resort to methods like self-induced vomiting, laxative misuse, or excessive exercise. For a diagnosis, these behaviors must occur at least once weekly over a three-month span. Unlike Anorexia Nervosa, patients usually maintain a normal or slightly above-normal body weight. Severe medical complications, such as dangerous electrolyte imbalances, are common.<br><br><strong>Fun Fact:</strong> The term 'bulimia' stems from the Greek words 'bous' (ox) and 'limos' (hunger), which literally translates to 'ravenous hunger.'"
+            },
+            {
+                answer: "Specific Phobia", difficulty: "Easy",
+                hints: ["A 30-year-old man actively avoids entering his home's basement.", "The mere thought of seeing a spider causes him immediate, intense panic.", "He rationally understands that his fear is highly disproportionate to any real threat.", "He systematically avoids any environment where he might encounter an arachnid.", "This pervasive fear and avoidance pattern has persisted for over six months."],
+                info: "<strong>Description:</strong> Specific Phobia involves a marked, persistent, and highly irrational fear of a specific object or situation. Common phobia categories include animals, natural environments, blood-injection-injury, and specific situations like flying. Exposure to the phobic stimulus almost universally provokes an immediate anxiety response. The fear must be out of proportion to actual danger and last for a minimum of 6 months. Individuals actively avoid the trigger, causing significant life disruption. Exposure therapy is the gold standard for clinical treatment.<br><br><strong>Fun Fact:</strong> Blood-injection-injury phobias are unique because they often trigger a vasovagal response, causing blood pressure to drop and leading to fainting, unlike other phobias that elevate heart rates."
+            },
+            {
+                answer: "Alcohol Use Disorder", difficulty: "Easy",
+                hints: ["A 45-year-old man has been increasingly missing important deadlines at his job.", "He frequently consumes significantly more drinks on weeknights than he initially plans.", "He has made several failed attempts to reduce his daily drinking habit.", "He experiences noticeable hand tremors each morning until he has his first drink.", "He persists in drinking heavily despite his physician's warnings about early liver damage."],
+                info: "<strong>Description:</strong> Alcohol Use Disorder (AUD) is defined as a problematic pattern of alcohol consumption that leads to clinically significant impairment or distress. The DSM-5 merged the older categories of 'abuse' and 'dependence' into this single spectrum diagnosis. To be diagnosed, patients must meet at least two of 11 criteria within a 12-month period, including craving, tolerance, and withdrawal symptoms. Morning tremors are a clinical sign of physiological dependence. Sudden cessation in severe cases requires medical supervision to prevent fatal complications.<br><br><strong>Fun Fact:</strong> The sudden discontinuation of heavy alcohol use can trigger delirium tremens (DTs), a severe and potentially fatal withdrawal syndrome characterized by profound confusion and hallucinations."
+            },
+            {
+                answer: "Insomnia Disorder", difficulty: "Easy",
+                hints: ["A 40-year-old woman reports chronic daytime fatigue and mood irritability.", "She struggles significantly to fall asleep, frequently lying awake for hours each night.", "This sleep disruption happens at least four nights weekly and has lasted for four months.", "She has a quiet, dark bedroom and ample time dedicated to sleeping.", "Her inability to sleep cannot be linked to medication, substance use, or another medical condition."],
+                info: "<strong>Description:</strong> Insomnia Disorder is characterized by a predominant complaint of dissatisfaction with sleep quantity or quality. Symptoms include difficulty initiating sleep, maintaining sleep, or waking up too early and being unable to return to sleep. The disturbance must occur at least 3 nights per week and persist for at least 3 months. Crucially, the difficulty occurs despite the individual having adequate opportunity for sleep. Chronic insomnia often co-occurs with other medical and psychiatric conditions.<br><br><strong>Fun Fact:</strong> The most effective long-term treatment is Cognitive Behavioral Therapy for Insomnia (CBT-I), which generally outperforms sleep medications by targeting underlying sleep anxiety and poor hygiene."
+            },
+            {
+                answer: "Autism Spectrum Disorder", difficulty: "Easy",
+                hints: ["A 4-year-old boy is brought to the clinic due to severely delayed speech milestones.", "He avoids eye contact and shows a marked disinterest in playing with other children.", "He frequently flaps his hands rapidly when he becomes emotionally excited.", "He possesses an intense, unusually narrow fixation on metropolitan subway maps.", "Minor disruptions to his daily schedule cause him profound distress and meltdowns."],
+                info: "<strong>Description:</strong> Autism Spectrum Disorder (ASD) is a neurodevelopmental condition defined by persistent deficits in social communication and interaction across multiple contexts. It also requires the presence of restricted, repetitive patterns of behavior, interests, or activities. Symptoms must manifest in the early developmental period, though they may become more apparent later as social demands increase. The DSM-5 consolidated diagnoses like Asperger's syndrome into this single spectrum. Severity is specified based on the required level of support.<br><br><strong>Fun Fact:</strong> Hyper- or hyporeactivity to sensory input, such as adverse responses to specific sounds or textures, was newly added as a core diagnostic criterion in the DSM-5."
+            },
+            {
+                answer: "Agoraphobia", difficulty: "Easy",
+                hints: ["A 35-year-old woman spends the vast majority of her time confined to her home.", "She exhibits profound fear of public transit and vast, open parking lots.", "She is terrified that she might panic in these places and be unable to easily escape.", "She completely avoids these environments unless her husband acts as her safe companion.", "Her fear is illogical regarding actual danger and has been present for over half a year."],
+                info: "<strong>Description:</strong> Agoraphobia involves a marked fear or anxiety about specific situations, such as using public transportation, being in open spaces, or standing in crowds. Individuals fear these settings because they believe escape might be difficult or help unavailable if they develop panic-like symptoms. The avoidance behavior can become so severe that the individual becomes completely housebound. It is diagnosed independently of Panic Disorder in the DSM-5. The fear must persist for at least 6 months.<br><br><strong>Fun Fact:</strong> The term 'agoraphobia' translates literally from ancient Greek as 'fear of the marketplace,' highlighting the historical context of fearing busy, public spaces."
+            },
+            {
+                answer: "Bipolar II Disorder", difficulty: "Easy",
+                hints: ["A 29-year-old man presents with severe lethargy and profound depression lasting 3 weeks.", "His history includes a distinct 4-day period of persistently elevated mood and abnormally high energy.", "During that elevated phase, he was unusually talkative but remained fully functional at work.", "He has never required psychiatric hospitalization for a manic episode or experienced psychosis.", "His clinical history requires at least one hypomanic episode and one major depressive episode."],
+                info: "<strong>Description:</strong> Bipolar II Disorder is characterized by a clinical course of recurring mood episodes, including at least one major depressive episode and at least one hypomanic episode. The defining difference from Bipolar I is that the patient has never experienced a full manic episode. Hypomania involves elevated or irritable mood lasting at least 4 consecutive days, but it is not severe enough to cause marked functional impairment. Patients often seek treatment only during depressive crashes. Mood stabilizers are a primary form of treatment.<br><br><strong>Fun Fact:</strong> Because patients often view their highly productive hypomanic states as positive rather than problematic, Bipolar II is frequently misdiagnosed initially as Major Depressive Disorder."
+            },
+            {
+                answer: "Tourette's Disorder", difficulty: "Easy",
+                hints: ["A 12-year-old boy is frequently disciplined for causing disruptions in his classroom.", "He demonstrates repetitive motor movements, specifically eye blinking and frequent shoulder shrugging.", "He also involuntarily emits sudden, loud grunting noises throughout the day.", "These symptoms emerged when he was 8 years old and have persisted for over a year.", "The tics are not a side effect of medication or another underlying medical condition."],
+                info: "<strong>Description:</strong> Tourette's Disorder is a neurodevelopmental condition characterized by the presence of multiple motor tics and at least one vocal tic. These tics may wax and wane in frequency but must have persisted for more than one year since their first onset. The disorder must manifest before the individual turns 18. Tics are typically preceded by an uncomfortable somatic sensation known as a premonitory urge, which the tic temporarily relieves. The condition frequently co-occurs with ADHD and OCD.<br><br><strong>Fun Fact:</strong> Coprolalia, the involuntary utterance of obscene or socially inappropriate words, is heavily sensationalized in movies but actually occurs in only about 10% of Tourette's patients."
+            },
+            {
+                answer: "Pica", difficulty: "Easy",
+                hints: ["A 6-year-old girl is brought in after her parents discovered her chewing on blackboard chalk.", "For the past two months, she has persistently eaten non-food items like dirt and torn paper.", "This consumption behavior is inappropriate for a child of her developmental age.", "The behavior is not part of any socially normative or culturally supported practice.", "Blood work confirms she has a normal complete blood count, ruling out anemia."],
+                info: "<strong>Description:</strong> Pica is classified under Feeding and Eating Disorders and is defined by the persistent eating of nonnutritive, nonfood substances over at least one month. Common ingested items include paper, dirt, hair, chalk, metal, or ice. The behavior must be inappropriate for the individual's developmental level, meaning it is rarely diagnosed in children under age two. It often occurs alongside other conditions like autism or intellectual disability. Medical monitoring is necessary due to risks of toxicity or bowel obstruction.<br><br><strong>Fun Fact:</strong> The disorder is named after the Latin word for magpie (pica pica), a bird historically famous for its reputed habit of eating or gathering almost anything it finds."
+            },
+            {
+                answer: "Body Dysmorphic Disorder", difficulty: "Easy",
+                hints: ["A 25-year-old man frequently schedules consultations with various cosmetic dermatologists.", "He is obsessively preoccupied with a perceived deformity on his nose that others cannot see.", "He spends hours daily checking mirrors and harshly comparing his appearance to others.", "He actively seeks out unnecessary surgical procedures to fix his supposed physical flaw.", "He skips social events frequently out of fear that others will notice he looks 'hideous'."],
+                info: "<strong>Description:</strong> Body Dysmorphic Disorder (BDD) involves a persistent preoccupation with one or more perceived defects or flaws in physical appearance that are unobservable or appear slight to others. In response to these concerns, individuals perform repetitive behaviors, such as mirror checking, excessive grooming, or seeking constant reassurance. The preoccupation causes clinically significant distress and impairs social or occupational functioning. BDD falls under the Obsessive-Compulsive and Related Disorders chapter. Cosmetic procedures rarely alleviate the patient's psychological distress.<br><br><strong>Fun Fact:</strong> A specific DSM-5 specifier exists for 'muscle dysmorphia,' which occurs predominantly in males who are pathologically obsessed with the idea that their body build is insufficiently muscular."
+            },
+            {
+                answer: "Major Depressive Disorder", difficulty: "Easy",
+                hints: ["A 32-year-old man has been entirely absent from his job for the past three weeks.", "He reports waking up every morning feeling profound emptiness and persistent sadness.", "He has completely stopped playing his guitar, a hobby he used to deeply enjoy.", "He is experiencing severe fatigue and noticeable weight loss despite sleeping 12 hours daily.", "He occasionally mentions passive thoughts that it would be easier if he were dead."],
+                info: "<strong>Description:</strong> Major Depressive Disorder (MDD) requires the presence of at least five specific depressive symptoms during the same 2-week period, representing a clear change from previous functioning. At least one symptom must be depressed mood or anhedonia (loss of interest or pleasure). Other symptoms include sleep disturbances, fatigue, feelings of worthlessness, impaired concentration, and suicidal ideation. The symptoms must cause clinically significant distress or impairment. MDD can be classified as a single episode or recurrent.<br><br><strong>Fun Fact:</strong> The DSM-5 removed the controversial 'bereavement exclusion,' meaning clinicians can now diagnose MDD within the first two months following the death of a loved one if symptoms are severe enough."
+            },
+            {
+                answer: "Generalized Anxiety Disorder", difficulty: "Easy",
+                hints: ["A 41-year-old woman complains of chronic restlessness and severe muscle tension.", "She describes herself as a chronic worrier who cannot turn off her stressful thoughts.", "She ruminates excessively about daily finances and her children, despite no actual crises.", "This uncontrollable, free-floating worry has occurred more days than not for 8 months.", "She frequently feels 'on edge' and struggles to maintain concentration at work."],
+                info: "<strong>Description:</strong> Generalized Anxiety Disorder (GAD) is characterized by excessive anxiety and worry occurring more days than not for at least 6 months, about various events or activities. The individual finds it extremely difficult to control the worry. The anxiety must be accompanied by at least three physical or cognitive symptoms, such as restlessness, fatigue, difficulty concentrating, irritability, muscle tension, or sleep disturbance. The constant state of hyperarousal causes significant daily distress. Therapy often involves reframing catastrophic 'what-if' thinking.<br><br><strong>Fun Fact:</strong> Muscle tension is the most robust somatic predictor of GAD, distinguishing its physical profile from the sudden, panic-like autonomic arousal seen in other anxiety disorders."
+            },
+            {
+                answer: "Panic Disorder", difficulty: "Easy",
+                hints: ["A 28-year-old man recently visited the emergency room fearing a massive heart attack.", "Medical tests were normal, but he describes sudden surges of intense terror peaking within minutes.", "During these episodes, he suffers from palpitations, sweating, and a feeling of impending doom.", "He now lives in a state of persistent, daily fear regarding when the next attack will happen.", "His attacks are completely unprovoked and occur without any identifiable situational trigger."],
+                info: "<strong>Description:</strong> Panic Disorder involves recurrent, unexpected panic attacks, which are abrupt surges of intense fear or discomfort that rapidly reach a peak. Diagnosis requires that at least one attack is followed by a month or more of persistent worry about having additional attacks, or a significant maladaptive change in behavior to avoid them. Symptoms during an attack can include a racing heart, shortness of breath, chest pain, and a fear of dying. Patients frequently misinterpret these attacks as severe medical emergencies.<br><br><strong>Fun Fact:</strong> While panic attacks can be a specifier added to almost any DSM-5 diagnosis, Panic Disorder itself requires the attacks to be 'unexpected' and occur entirely out of the blue."
+            },
+            {
+                answer: "Attention-Deficit/Hyperactivity Disorder", difficulty: "Easy",
+                hints: ["An 8-year-old boy's teacher describes him as constantly 'running on a motor'.", "He frequently blurts out answers before the teacher has finished asking the question.", "He makes careless errors on his schoolwork because he rushes and ignores details.", "He cannot remain seated during family dinners and constantly fidgets with his hands.", "These significant hyperactive and inattentive symptoms are obvious both at school and at home."],
+                info: "<strong>Description:</strong> Attention-Deficit/Hyperactivity Disorder (ADHD) is a neurodevelopmental disorder defined by a persistent pattern of inattention and/or hyperactivity-impulsivity that interferes with development or functioning. Crucially, symptoms must be present before the age of 12 and occur in two or more settings, such as at home and school. The DSM-5 outlines three presentations: predominantly inattentive, predominantly hyperactive/impulsive, or combined. The disorder heavily impacts executive functioning and self-regulation. Stimulant medications remain the most widely used pharmacological treatment.<br><br><strong>Fun Fact:</strong> The diagnostic criteria for adults were slightly relaxed in the DSM-5; individuals 17 and older now only need to demonstrate 5 symptoms instead of the 6 required for children."
+            },
+            {
+                answer: "Posttraumatic Stress Disorder", difficulty: "Easy",
+                hints: ["A 34-year-old woman survived a horrific highway car crash eight months ago.", "She suffers from distressing, intrusive flashbacks and nightmares regarding the accident.", "She completely refuses to drive or even discuss the event with her family.", "She is highly hypervigilant, irritable, and exhibits an exaggerated startle response.", "These debilitating symptoms have lasted for significantly longer than one month."],
+                info: "<strong>Description:</strong> Posttraumatic Stress Disorder (PTSD) requires exposure to actual or threatened death, serious injury, or sexual violence. The diagnostic criteria encompass four symptom clusters: intrusion (flashbacks, nightmares), active avoidance of trauma-related stimuli, negative alterations in cognitions and mood, and marked alterations in arousal and reactivity (hypervigilance). For a diagnosis, symptoms must cause significant impairment and last for more than one month. Evidence-based treatments include Eye Movement Desensitization and Reprocessing (EMDR) and Trauma-Focused CBT.<br><br><strong>Fun Fact:</strong> PTSD is unique among major psychiatric disorders in the DSM-5 because its diagnostic criteria explicitly require an external, verifiable etiologic event—the trauma itself—to be diagnosed."
+            },
+            {
+                answer: "Bipolar I Disorder", difficulty: "Easy",
+                hints: ["A 26-year-old man is brought to the psychiatric ward by his concerned roommates.", "He has not slept for a week, claiming he is entirely too energized to waste time in bed.", "He paces rapidly, jumps erratically between conversational topics, and speaks at an unusually fast pace.", "He recently drained his bank accounts to buy servers for a 'billion-dollar tech company' he invented yesterday.", "This distinct period of grandiose, elevated mood has caused severe impairment in his life."],
+                info: "<strong>Description:</strong> Bipolar I Disorder requires the presence of at least one full manic episode. A manic episode is a distinct period of abnormally and persistently elevated, expansive, or irritable mood, accompanied by increased goal-directed activity or energy. The episode must last at least 1 week (or any duration if hospitalization is required). Symptoms include a decreased need for sleep, grandiosity, flight of ideas, and dangerous impulsive behaviors. Treatment prioritizes mood stabilizers to manage acute mania and prevent relapse.<br><br><strong>Fun Fact:</strong> While debilitating depressive episodes are highly common in individuals with Bipolar I, a Major Depressive Episode is actually not required to make the diagnosis."
+            },
+            {
+                answer: "Schizophrenia", difficulty: "Easy",
+                hints: ["A 22-year-old college student has recently experienced a severe drop in his academic performance.", "He firmly believes that federal agents are broadcasting tracking signals through his television.", "He is frequently observed responding to auditory hallucinations of two voices arguing about him.", "His conversational speech has become highly disorganized and tangential.", "These prominent positive and negative symptoms have been continuously present for seven months."],
+                info: "<strong>Description:</strong> Schizophrenia is a severe psychiatric disorder requiring two or more key symptoms for a significant portion of time during a 1-month period. These symptoms include delusions, hallucinations, disorganized speech, grossly disorganized behavior, and negative symptoms (such as flat affect or avolition). At least one symptom must be delusions, hallucinations, or disorganized speech. Continuous signs of the illness must persist for at least 6 months. Antipsychotic medications targeting dopamine pathways are the primary biological treatment.<br><br><strong>Fun Fact:</strong> The DSM-5 completely eliminated classic subtypes (like paranoid or catatonic schizophrenia) because they had poor diagnostic stability and limited prognostic value for clinicians."
+            },
+            {
+                answer: "Social Anxiety Disorder", difficulty: "Easy",
+                hints: ["A 19-year-old student dropped a mandatory communications class to avoid giving a presentation.", "She feels intense panic when forced to eat in public spaces or meet unfamiliar people.", "She is deeply terrified of acting in a manner that will result in negative judgment from peers.", "When forced into social situations, she consistently blushes, sweats profusely, and trembles.", "She structures her daily routine to actively avoid any scenario involving social scrutiny."],
+                info: "<strong>Description:</strong> Social Anxiety Disorder is characterized by a marked fear or anxiety about one or more social situations where the individual is exposed to possible scrutiny. The core fear is that the individual will act in a way or show anxiety symptoms that will be negatively evaluated, leading to humiliation or rejection. The social situations almost always provoke fear and are actively avoided or endured with immense distress. The fear is out of proportion to the actual threat posed by the social situation.<br><br><strong>Fun Fact:</strong> The DSM-5 includes a 'Performance only' specifier for individuals whose intense fear is restricted exclusively to speaking or performing in public, separating stage fright from broader social deficits."
+            },
+            {
+                answer: "Anorexia Nervosa", difficulty: "Easy",
+                hints: ["A 16-year-old girl is brought to the clinic exhibiting severe, noticeable weight loss.", "Her current BMI is 15.2, falling significantly below normal expectations for her age and height.", "Despite her physically emaciated state, she frequently complains about feeling 'too fat'.", "She restricts her intake to 500 calories a day due to an intense, overwhelming fear of gaining weight.", "She exercises compulsively for hours and refuses to eat meals in the presence of her family."],
+                info: "<strong>Description:</strong> Anorexia Nervosa is defined by a severe restriction of energy intake relative to requirements, leading to a significantly low body weight. It involves an intense psychological fear of gaining weight or becoming fat, alongside a profound disturbance in how one's body weight or shape is experienced. Patients often engage in excessive exercise or prolonged fasting. The condition has one of the highest mortality rates of any psychiatric disorder due to severe medical complications, including cardiac arrhythmias. Medical stabilization is often required before psychological treatment.<br><br><strong>Fun Fact:</strong> The DSM-5 removed the requirement for amenorrhea (the loss of menstrual periods) to allow for the diagnosis in males and females taking oral contraceptives."
+            },
+            {
+                answer: "Obsessive-Compulsive Disorder", difficulty: "Easy",
+                hints: ["A 30-year-old woman presents with hands that are raw, red, and cracked from excessive washing.", "She is tormented by intrusive, recurrent thoughts that her home is covered in deadly pathogens.", "To temporarily alleviate the anxiety these thoughts cause, she washes her hands exactly ten times.", "She logically recognizes that her routine is excessive, but feels entirely unable to resist the urge.", "These daily rituals consume over three hours of her time, causing major disruptions to her life."],
+                info: "<strong>Description:</strong> Obsessive-Compulsive Disorder (OCD) is characterized by the presence of obsessions, compulsions, or both. Obsessions are recurrent, persistent, and intrusive thoughts or urges that cause marked anxiety. Compulsions are repetitive behaviors or mental acts that an individual feels driven to perform in response to an obsession, aimed at neutralizing the distress. The rituals are time-consuming (taking more than 1 hour a day) and cause clinically significant impairment. Exposure and Response Prevention (ERP) is the gold-standard therapeutic intervention.<br><br><strong>Fun Fact:</strong> Acknowledging its distinct neurobiological underpinnings, the DSM-5 removed OCD from the Anxiety Disorders category and created its own specific chapter."
+            },
+            {
+                answer: "Specific Phobia", difficulty: "Easy",
+                hints: ["A 27-year-old woman completely refuses to travel via commercial airlines.", "Merely looking at an image of a plane triggers an immediate autonomic panic response.", "She recently declined a lucrative job promotion because it mandated frequent air travel.", "She logically acknowledges that commercial flying is statistically incredibly safe.", "She has successfully utilized driving to avoid all air travel for the past five years."],
+                info: "<strong>Description:</strong> Specific Phobia involves an intense, irrational fear of a specific object or situation, such as flying (aerophobia). The fear is persistent, usually lasting 6 months or more, and causes clinically significant distress or impairment. Individuals actively avoid the phobic stimulus or endure it with extreme anxiety. Even though patients often recognize their fear is logically out of proportion to the actual danger, this cognitive awareness does not alleviate the autonomic panic response. Untreated phobias can severely restrict career and life opportunities.<br><br><strong>Fun Fact:</strong> Virtual Reality Exposure Therapy (VRET) has emerged as a highly effective, accessible clinical method for treating specific phobias like the fear of flying."
+            },
+            {
+                answer: "Insomnia Disorder", difficulty: "Easy",
+                hints: ["A 50-year-old man reports feeling dangerously exhausted during his morning drive to work.", "He falls asleep easily at 10 PM but consistently awakens wide alert at 2:00 AM.", "Once awake, he lies in his dark, quiet bedroom but is entirely unable to return to sleep.", "This pattern of early morning awakening has plagued him 5 nights a week for a year.", "His fragmented sleep is not caused by caffeine intake, medications, or sleep apnea."],
+                info: "<strong>Description:</strong> Insomnia Disorder can manifest as sleep-onset insomnia (trouble falling asleep) or sleep-maintenance insomnia (trouble staying asleep or waking too early). To meet DSM-5 criteria, the sleep difficulty must occur at least 3 nights a week for 3 months. Crucially, the issue must occur despite having adequate opportunity and an appropriate environment for sleep. It must cause clinically significant distress or daytime impairment. It is highly comorbid with other psychiatric conditions, requiring careful assessment.<br><br><strong>Fun Fact:</strong> Early morning awakening, often referred to clinically as terminal insomnia, is a classic vegetative symptom heavily associated with severe Major Depressive Disorder."
+            },
+            {
+                answer: "Autism Spectrum Disorder", difficulty: "Easy",
+                hints: ["A 5-year-old girl experiences severe difficulties navigating social interactions in kindergarten.", "She rarely responds when her name is called and does not initiate play with peers.", "She rigidly lines her toys up in an exact sequence and screams if the order is disturbed.", "She possesses a highly restricted, intense fascination with the mechanical structure of ceiling fans.", "She displays marked hyperreactivity to sensory input, covering her ears when a vacuum runs."],
+                info: "<strong>Description:</strong> Autism Spectrum Disorder (ASD) requires deficits in two core domains: social communication/interaction, and restricted/repetitive patterns of behavior. Symptoms must be present in the early developmental period, causing significant impairment. For diagnosis, clinicians specify the severity level (Level 1, 2, or 3) based on the amount of daily support the individual requires to function. Early intervention therapies focus on building communication and social skills. The presentation of symptoms can vary widely across the spectrum.<br><br><strong>Fun Fact:</strong> The DSM-5 replaced the old categorical system (which included Asperger's) because research showed dimensional spectrum approaches proved much more reliable for clinicians."
+            },
+            {
+                answer: "Agoraphobia", difficulty: "Easy",
+                hints: ["A 42-year-old man works entirely from his living room and relies on grocery delivery.", "He is terrified of standing in checkout lines or sitting in crowded, enclosed movie theaters.", "He obsesses over the fear that if he panics in these spaces, he will be unable to escape.", "He cannot leave his property unless his brother accompanies him as a safety figure.", "This pervasive avoidance has severely restricted his independence for the past two years."],
+                info: "<strong>Description:</strong> Agoraphobia requires marked fear or anxiety about two out of five specific situations, such as enclosed spaces, open spaces, or crowds. The fear is driven by the catastrophic thought that escape might be difficult or help unavailable if panic-like, embarrassing, or incapacitating symptoms occur. The avoidance behavior can become so severe that individuals rely entirely on companions to navigate the outside world. The fear is persistent and lasts for 6 months or more. CBT combined with gradual in-vivo exposure is the standard behavioral treatment.<br><br><strong>Fun Fact:</strong> While historically conceptualized strictly as a fear of open spaces, clinical data shows it is fundamentally a fear of being separated from a safe place or person."
+            },
+            {
+                answer: "Pica", difficulty: "Easy",
+                hints: ["A 24-year-old pregnant woman confesses a highly unusual craving to her obstetrician.", "For a month, she has been secretly eating small handfuls of cornstarch and raw baking flour.", "She also occasionally consumes potting clay when she works in her garden.", "Her bizarre consumption is not a sanctioned cultural practice or religious ritual.", "Her doctor immediately orders blood tests to check her hemoglobin and ferritin levels."],
+                info: "<strong>Description:</strong> Pica involves the persistent eating of nonnutritive, nonfood substances for a period of at least one month. While most frequently observed in children or individuals with intellectual disabilities, it can also manifest uniquely in adults, particularly during pregnancy. The ingestion must not be a culturally supported or socially normative practice (some cultures practice geophagy, or eating earth). It warrants medical workup to rule out toxic exposure or severe nutritional deficits. The behavior must be developmentally inappropriate.<br><br><strong>Fun Fact:</strong> Pregnant women with Pica frequently crave ice (pagophagia) or dirt, behaviors strongly correlated with severe iron deficiency anemia that often resolve when treated."
+            },
+            {
+                answer: "Delirium", difficulty: "Medium",
+                hints: ["A 78-year-old man is admitted to the hospital with a severe urinary tract infection.", "Over the past 24 hours, he developed a sudden, acute onset of severe disorientation.", "Nurses note that his level of awareness and confusion fluctuates wildly throughout the day.", "He struggles to maintain attention during conversations and claims to see bugs on the ceiling.", "His profound cognitive disturbance is a direct physiological consequence of his infection."],
+                info: "<strong>Description:</strong> Delirium is characterized by a disturbance in attention and awareness that develops over a short period of time, usually hours to a few days. The severity of the symptoms characteristically fluctuates during the course of a day. It is an acute confusional state accompanied by an additional disturbance in cognition, such as memory deficit, disorientation, or hallucinations. Crucially, there must be evidence that the disturbance is a direct physiological consequence of another medical condition, substance intoxication, or withdrawal. It is a medical emergency requiring immediate investigation.<br><br><strong>Fun Fact:</strong> Unlike dementia, which is chronic and progressive, delirium is typically acute and fully reversible once the underlying systemic cause is identified and treated."
+            },
+            {
+                answer: "Narcissistic Personality Disorder", difficulty: "Medium",
+                hints: ["A 34-year-old corporate executive is mandated to counseling following intense workplace friction.", "He displays a grandiose sense of self-importance and consistently exaggerates his professional successes.", "He demonstrates a profound lack of empathy for the exhaustion of his overworked subordinates.", "He firmly believes he is a 'special' talent who can only associate with other high-status individuals.", "He possesses a powerful sense of entitlement and demands constant, excessive admiration from others."],
+                info: "<strong>Description:</strong> Narcissistic Personality Disorder (NPD) is a Cluster B personality disorder defined by a pervasive pattern of grandiosity, need for admiration, and lack of empathy, beginning by early adulthood. Diagnostic criteria include a sense of entitlement, interpersonally exploitative behavior, arrogance, and a preoccupation with fantasies of unlimited success or power. Individuals with NPD are highly sensitive to criticism and often react with disdain or rage to perceived 'narcissistic injury.' Therapy is notoriously difficult as patients rarely perceive their own traits as problematic. They often struggle to maintain healthy relationships.<br><br><strong>Fun Fact:</strong> Psychoanalytic theory posits that this grandiose exterior is actually a fragile defense mechanism covering up deep-seated feelings of inferiority and profound insecurity."
+            },
+            {
+                answer: "Trichotillomania", difficulty: "Medium",
+                hints: ["A 19-year-old woman presents to a clinic attempting to hide irregular bald patches on her scalp.", "She admits to recurrently pulling out her own hair during periods of studying or high stress.", "She has made numerous, unsuccessful attempts to decrease or completely stop the pulling behavior.", "The visible hair loss causes her significant social embarrassment and psychological distress.", "The physical pulling is not triggered by a delusion or a perceived defect in her appearance."],
+                info: "<strong>Description:</strong> Trichotillomania (Hair-Pulling Disorder) is categorized under Obsessive-Compulsive and Related Disorders in the DSM-5. It involves the recurrent pulling out of one's hair, resulting in noticeable hair loss, coupled with repeated attempts to decrease or stop the behavior. The pulling can occur from any region of the body with hair, most commonly the scalp, eyebrows, and eyelashes. Pulling can occur in brief episodes scattered throughout the day or in sustained periods. The behavior must cause clinically significant distress. Habit Reversal Training is a common behavioral treatment.<br><br><strong>Fun Fact:</strong> A rare but severe medical complication of this disorder is a trichobezoar—a hairball that forms in the gastrointestinal tract if the individual ingests the pulled hair."
+            },
+            {
+                answer: "Adjustment Disorder", difficulty: "Medium",
+                hints: ["A 28-year-old woman was abruptly laid off from her career two months ago.", "Following the job loss, she developed notable anxiety and a depressed mood.", "Her level of emotional distress is visibly out of proportion to the severity of the stressor.", "Her symptoms significantly impair her motivation and ability to interview for new positions.", "Her symptoms do not meet the full criteria for MDD and do not represent normal bereavement."],
+                info: "<strong>Description:</strong> Adjustment Disorders involve the development of emotional or behavioral symptoms in response to an identifiable stressor occurring within 3 months of the onset of the stressor. The distress must be out of proportion to the severity of the stressor, taking into account cultural contexts, and cause significant impairment in functioning. Specifiers are used to identify predominant symptoms, such as 'with depressed mood' or 'with anxiety.' It is often viewed as a subclinical response falling between normal coping and major disorders. It is a highly common outpatient diagnosis.<br><br><strong>Fun Fact:</strong> Adjustment Disorders are inherently time-limited; once the stressor or its consequences has terminated, the symptoms must not persist for more than an additional 6 months."
+            },
+            {
+                answer: "Excoriation Disorder", difficulty: "Medium",
+                hints: ["A 31-year-old man insists on wearing long-sleeved shirts even during the hot summer.", "He engages in recurrent, compulsive skin picking that has created visible lesions on his arms.", "He experiences a rising sense of tension before picking, followed by a temporary sense of relief.", "He has tried repeatedly to stop the behavior but feels entirely unable to control the urge.", "The lesions are not attributable to methamphetamine use or dermatological conditions like scabies."],
+                info: "<strong>Description:</strong> Excoriation (Skin-Picking) Disorder is characterized by recurrent picking of one's skin resulting in skin lesions, along with repeated attempts to decrease or stop the behavior. The behavior must cause clinically significant distress or impairment. The picking can be triggered by anxiety, boredom, or a perceived blemish, and may involve hours of picking. It is categorized under the Obsessive-Compulsive and Related Disorders chapter. It can lead to severe tissue damage and require medical intervention for infections. Habit Reversal Training (HRT) is the primary evidence-based behavioral treatment.<br><br><strong>Fun Fact:</strong> Like trichotillomania, this is considered a Body-Focused Repetitive Behavior (BFRB), which often functions as a maladaptive self-soothing mechanism rather than a traditional compulsion."
+            },
+            {
+                answer: "Persistent Depressive Disorder", difficulty: "Medium",
+                hints: ["A 42-year-old woman tells her therapist, 'I have just always felt kind of down.'", "She has endured a depressed mood for most of the day, more days than not, for two straight years.", "She chronically struggles with low energy, feelings of hopelessness, and a poor appetite.", "She states she has never been free of these melancholic symptoms for more than two months.", "Her clinical history contains absolutely no evidence of manic or hypomanic episodes."],
+                info: "<strong>Description:</strong> Persistent Depressive Disorder (PDD) consolidates the older diagnoses of chronic major depressive disorder and dysthymic disorder. The essential feature is a depressed mood that occurs for most of the day, for more days than not, for at least 2 years in adults. Patients must display at least two additional depressive symptoms, such as low energy, poor self-esteem, or sleep issues. The symptoms cause clinically significant distress but may not incapacitate the individual entirely. Therapy and antidepressants are commonly utilized to improve baseline functioning.<br><br><strong>Fun Fact:</strong> Because symptoms become such a chronic part of daily life, patients with PDD often mistakenly view their depression as an unchangeable personality trait rather than a treatable illness."
+            },
+            {
+                answer: "Gambling Disorder", difficulty: "Medium",
+                hints: ["A 50-year-old man has secretly depleted his family's shared savings account.", "He feels a powerful compulsion to wager increasing amounts of money to achieve a thrill.", "He repeatedly lies to his wife to conceal the massive extent of his sports betting.", "He becomes highly irritable and restless when he tries to cut back on his wagering.", "He frequently relies on bailouts from friends to relieve desperate financial crises he created."],
+                info: "<strong>Description:</strong> Gambling Disorder is a behavioral addiction defined by a persistent and recurrent maladaptive gambling behavior that disrupts personal, family, or vocational pursuits. Diagnosis requires at least four symptoms over a 12-month period, including tolerance (needing to gamble with increasing amounts of money), withdrawal (restlessness when stopping), and lying. It reflects a major shift in the DSM-5 to the Substance-Related and Addictive Disorders chapter. The disorder severely impacts financial stability and interpersonal trust. Cognitive Behavioral Therapy aims to correct distorted beliefs regarding odds and luck.<br><br><strong>Fun Fact:</strong> 'Chasing one's losses'—the urgent cognitive need to keep gambling to win back money already lost—is a hallmark behavioral driver of this specific disorder."
+            },
+            {
+                answer: "Antisocial Personality Disorder", difficulty: "Medium",
+                hints: ["A 26-year-old man has a lengthy criminal record involving multiple arrests for fraud.", "His juvenile records show a formal diagnosis of Conduct Disorder prior to age 15.", "He frequently uses aliases to con vulnerable individuals and displays zero remorse for his actions.", "He is highly impulsive and consistently demonstrates a reckless disregard for others' safety.", "He is entirely unable to sustain consistent employment or honor his financial debts."],
+                info: "<strong>Description:</strong> Antisocial Personality Disorder (ASPD) is a Cluster B personality disorder characterized by a pervasive pattern of disregard for, and violation of, the rights of others. The individual must be at least 18 years old to receive the diagnosis, with evidence of Conduct Disorder onset before age 15. Traits include deceitfulness, impulsivity, irritability, aggressiveness, and a profound lack of remorse. Individuals with ASPD frequently encounter the legal system. Treatment is notoriously difficult due to the patient's inherent lack of empathy and manipulative tendencies.<br><br><strong>Fun Fact:</strong> While 'sociopathy' and 'psychopathy' are popular cultural terms, psychopathy is actually conceptualized as a more severe, specialized subset of ASPD characterized by distinct affective deficits like fearlessness."
+            },
+            {
+                answer: "Specific Learning Disorder", difficulty: "Medium",
+                hints: ["A 9-year-old girl is struggling to keep pace in her third-grade classroom.", "She exhibits persistent difficulty with slow reading rates and poor reading comprehension.", "Standardized testing confirms her academic skills are substantially below age expectations.", "Comprehensive cognitive testing shows her general intelligence falls perfectly within the average range.", "Her academic struggles persist despite six months of targeted educational interventions."],
+                info: "<strong>Description:</strong> Specific Learning Disorder is a neurodevelopmental condition characterized by persistent difficulties learning and using academic skills. These difficulties must persist for at least 6 months despite the provision of interventions targeting those difficulties. The academic skills are quantifiably below those expected for the individual's chronological age and cause significant interference with academic performance. Specifiers include impairment in reading (dyslexia), written expression, or mathematics (dyscalculia). Early identification and individualized education plans (IEPs) are crucial for academic success.<br><br><strong>Fun Fact:</strong> It is strictly defined as an unexpected academic underachievement; therefore, it cannot be diagnosed if difficulties are better explained by intellectual disabilities or lack of educational opportunity."
+            },
+            {
+                answer: "Separation Anxiety Disorder", difficulty: "Medium",
+                hints: ["A 7-year-old boy experiences severe, tearful distress every morning before the school bus arrives.", "He verbalizes an excessive, paralyzing fear concerning being apart from his mother.", "He suffers from recurrent nightmares about getting permanently lost or kidnapped.", "He frequently fakes stomachaches strictly on school days to avoid leaving his house.", "These symptoms are inappropriate for his developmental age and have lasted over four weeks."],
+                info: "<strong>Description:</strong> Separation Anxiety Disorder is characterized by developmentally inappropriate and excessive fear or anxiety concerning separation from those to whom the individual is attached. Symptoms include recurrent excessive distress when anticipating separation, persistent worries about losing major attachment figures to illness, and reluctance to sleep away from home. The fear must last at least 4 weeks in children and typically 6 months or more in adults. It causes significant impairment in academic or social functioning. Behavioral interventions focus on gradual separation and anxiety management.<br><br><strong>Fun Fact:</strong> While previously categorized exclusively as a disorder of childhood, the DSM-5 recognized that adults can suffer from severe separation anxiety, moving it to the general Anxiety Disorders chapter."
+            },
+            {
+                answer: "Illness Anxiety Disorder", difficulty: "Medium",
+                hints: ["A 45-year-old man obsessively checks his pulse and physically examines his body for lumps daily.", "He has no actual physical symptoms, but is deeply convinced he has a terminal brain tumor.", "Extensive medical workups and MRI scans have repeatedly confirmed he is entirely healthy.", "Despite explicit medical reassurance, his severe anxiety regarding his health persists unabated.", "He spends hours every night compulsively researching rare diseases on medical websites."],
+                info: "<strong>Description:</strong> Illness Anxiety Disorder is characterized by a preoccupation with having or acquiring a serious, undiagnosed medical illness. Crucially, somatic (physical) symptoms are not present, or if present, are only mild in intensity. The individual performs excessive health-related behaviors, like repeatedly checking their body for signs of illness or researching symptoms online. The preoccupation must be present for at least 6 months and cause significant distress. Cognitive Behavioral Therapy is used to address the catastrophic misinterpretation of normal bodily sensations.<br><br><strong>Fun Fact:</strong> This diagnosis replaced a large portion of what used to be called 'Hypochondriasis,' specifically separating individuals with health anxiety from those who experience actual severe physical pain."
+            },
+            {
+                answer: "Hoarding Disorder", difficulty: "Medium",
+                hints: ["A 60-year-old woman's home has become nearly impossible to navigate due to extreme clutter.", "She experiences immense emotional difficulty discarding items, regardless of their actual monetary value.", "She claims she needs to save decades-old newspapers 'just in case' they become useful.", "Her kitchen and living room are so congested they can no longer be used for cooking or sitting.", "The massive accumulation of possessions is causing severe tension with her family members."],
+                info: "<strong>Description:</strong> Hoarding Disorder is defined by persistent difficulty discarding or parting with possessions, regardless of their actual value. This difficulty stems from a perceived need to save the items and the severe distress associated with discarding them. The accumulation results in active living areas becoming so cluttered that their intended use is substantially compromised. The hoarding must cause clinically significant distress or impairment. Specialized Cognitive Behavioral Therapy focuses on decision-making and categorization skills.<br><br><strong>Fun Fact:</strong> Hoarding was elevated to a distinct diagnosis in the DSM-5 because research showed it responds poorly to traditional OCD medications and involves entirely distinct neural activation patterns."
+            },
+            {
+                answer: "Binge-Eating Disorder", difficulty: "Medium",
+                hints: ["A 35-year-old man frequently consumes massive amounts of food rapidly while alone in his car.", "He eats until he feels painfully full and experiences intense self-disgust afterward.", "He describes feeling a complete lack of control over his actions during these eating episodes.", "These distressing episodes happen, on average, at least twice a week.", "Crucially, he never engages in purging, laxative use, or excessive exercise following a binge."],
+                info: "<strong>Description:</strong> Binge-Eating Disorder (BED) involves recurrent episodes of eating an amount of food that is definitely larger than what most people would eat in a similar period. These episodes are associated with a sense of lack of control, eating rapidly, eating until uncomfortably full, and marked feelings of disgust or guilt afterward. The binge eating occurs, on average, at least once a week for 3 months. Treatment often incorporates CBT and lisdexamfetamine to reduce binge frequency. It is strongly associated with obesity and metabolic issues.<br><br><strong>Fun Fact:</strong> The key differentiating factor between BED and Bulimia Nervosa is the absolute absence of regular inappropriate compensatory behaviors (like purging) in BED."
+            },
+            {
+                answer: "Cyclothymic Disorder", difficulty: "Medium",
+                hints: ["A 24-year-old woman seeks help for chronic, exhausting mood swings that impact her relationships.", "For two years, she has cycled through numerous periods of hypomanic and depressive symptoms.", "Her symptoms have never been severe enough to meet full criteria for a Major Depressive or Hypomanic episode.", "She has not experienced a stable mood for more than two months at any given time.", "Her peers describe her as being mildly 'up and down all the time' without any clear trigger."],
+                info: "<strong>Description:</strong> Cyclothymic Disorder is a chronic, fluctuating mood disturbance characterized by numerous periods of hypomanic symptoms and numerous periods of depressive symptoms. Crucially, these symptoms are sub-syndromal—they do not meet the full diagnostic criteria for a hypomanic episode or a major depressive episode. For adults, this fluctuating pattern must be present for at least 2 years, during which symptoms are present half the time. It causes significant distress or impairment in functioning. Mood stabilizers or therapy are often utilized to manage the chronic fluctuations.<br><br><strong>Fun Fact:</strong> Cyclothymia is to Bipolar Disorder what Persistent Depressive Disorder is to Major Depressive Disorder—a chronic, less severe, but highly pervasive version of the illness."
+            },
+            {
+                answer: "Borderline Personality Disorder", difficulty: "Medium",
+                hints: ["A 21-year-old woman has a chaotic history of highly unstable interpersonal relationships.", "She rapidly alternates between idealizing her friends and intensely devaluing them over minor issues.", "She engages in frantic, impulsive efforts to avoid real or perceived abandonment.", "She reports a chronic feeling of emptiness and has a history of non-suicidal self-injury.", "Her mood is highly reactive, experiencing intense episodes of dysphoria or anger lasting hours."],
+                info: "<strong>Description:</strong> Borderline Personality Disorder (BPD) is a Cluster B personality disorder defined by a pervasive pattern of instability in interpersonal relationships, self-image, and affects, alongside marked impulsivity. Key criteria include frantic efforts to avoid abandonment, identity disturbance, chronic feelings of emptiness, intense anger, and recurrent suicidal behavior or self-injury. Individuals with BPD often view others in extremes (known as 'splitting'). It is highly associated with childhood trauma and invalidating environments. Treatment requires specialized, long-term therapeutic commitment.<br><br><strong>Fun Fact:</strong> Dialectical Behavior Therapy (DBT), developed by Marsha Linehan, is the gold standard treatment for BPD and uniquely balances acceptance-based strategies with change-based problem-solving."
+            },
+            {
+                answer: "Histrionic Personality Disorder", difficulty: "Medium",
+                hints: ["A 29-year-old man consistently dresses flamboyantly and behaves in a highly theatrical manner.", "He becomes visibly uncomfortable and agitated in situations where he is not the center of attention.", "His social interactions frequently feature inappropriately provocative or sexually seductive behavior.", "His speech style is excessively impressionistic, lacking depth or factual detail.", "He considers casual acquaintances to be deep, intimate friendships."],
+                info: "<strong>Description:</strong> Histrionic Personality Disorder is a Cluster B personality disorder characterized by a pervasive pattern of excessive emotionality and attention-seeking behavior. Individuals with this disorder are often uncomfortable when they are not the center of attention. They tend to interact with others in ways that are inappropriately provocative, display rapidly shifting emotions, and use physical appearance to draw attention. They are highly suggestible and easily influenced by others. Long-term psychotherapy focuses on developing healthier ways of relating to others and building genuine self-esteem.<br><br><strong>Fun Fact:</strong> The word 'histrionic' originates from the Latin word 'histrio,' meaning actor, perfectly describing their tendency to express strong opinions without the supporting facts to back them up."
+            },
+            {
+                answer: "Acute Stress Disorder", difficulty: "Medium",
+                hints: ["A 30-year-old man witnessed a terrifying armed robbery at his local bank two weeks ago.", "Since then, he feels detached from reality and cannot recall specific details of the robbery.", "He is plagued by intense, distressing flashbacks of the gunman pointing the weapon.", "He completely avoids the street where the bank is located and startles easily at sudden noises.", "Because the traumatic event occurred only 14 days ago, a diagnosis of PTSD is currently premature."],
+                info: "<strong>Description:</strong> Acute Stress Disorder requires exposure to a traumatic event, characterized by the development of severe anxiety, dissociative, and other symptoms occurring within 1 month after exposure to an extreme stressor. The symptom profile overlaps heavily with PTSD, including intrusion, negative mood, dissociation, avoidance, and arousal symptoms. It causes clinically significant distress or impairment. Early intervention can help process the trauma and prevent the escalation of symptoms. The diagnosis provides a framework for addressing immediate post-trauma distress.<br><br><strong>Fun Fact:</strong> The key differentiator between this and PTSD is entirely timeline-based: ASD is diagnosed when symptoms occur between 3 days and 1 month after the trauma."
+            },
+            {
+                answer: "Opioid Use Disorder", difficulty: "Medium",
+                hints: ["A 40-year-old woman was originally prescribed painkillers following a minor knee surgery.", "She now consumes significantly higher doses than prescribed and resorts to forging prescriptions.", "She dedicates a massive portion of her day to obtaining, using, and recovering from the pills.", "Attempting to quit abruptly resulted in severe nausea, intense muscle aches, and heavy sweating.", "She continues to abuse the medication despite being terminated from her job for intoxication."],
+                info: "<strong>Description:</strong> Opioid Use Disorder (OUD) involves a problematic pattern of opioid use leading to significant impairment or distress. Criteria include taking larger amounts than intended, unsuccessful efforts to cut down, craving, failure to fulfill major role obligations, and continued use despite social problems. Tolerance and withdrawal are key physiological markers. Opioid withdrawal produces severe flu-like symptoms. It is a chronic, relapsing condition that requires comprehensive medical and psychological care to manage effectively.<br><br><strong>Fun Fact:</strong> Medication-Assisted Treatment (MAT) using agonists like Methadone or partial agonists like Buprenorphine is considered the gold standard, drastically reducing mortality rates compared to abstinence-only models."
+            },
+            {
+                answer: "Cannabis Use Disorder", difficulty: "Medium",
+                hints: ["A 20-year-old college student is failing his courses due to chronic lack of motivation.", "He smokes marijuana daily, frequently abandoning his studies to get high instead.", "He reports experiencing a powerful, daily craving to use the substance.", "When attempting a 'tolerance break,' he experienced intense irritability, anxiety, and insomnia.", "He continues his daily use despite recognizing it is actively ruining his academic career."],
+                info: "<strong>Description:</strong> Cannabis Use Disorder is characterized by a problematic pattern of cannabis use leading to clinically significant impairment or distress within a 12-month period. Symptoms include using larger amounts over a longer period than intended, craving, and giving up important social, occupational, or recreational activities. The DSM-5 officially recognizes a distinct Cannabis Withdrawal syndrome characterized by irritability, sleep difficulties, and depressed mood upon cessation. Treatment often involves motivational interviewing and cognitive behavioral interventions to address dependence.<br><br><strong>Fun Fact:</strong> Despite rising cultural acceptance, clinical evidence robustly shows that a subset of users develop genuine physiological dependence and experience significant life impairment upon cessation."
+            },
+            {
+                answer: "Conversion Disorder", difficulty: "Medium",
+                hints: ["A 32-year-old woman presents to the ER with sudden, unexplained paralysis of her right arm.", "Comprehensive neurological testing, including EMGs, reveals absolutely no organic cause.", "Clinical exams show clear evidence of incompatibility between her symptom and known neurological pathways.", "The paralysis is entirely genuine and is not being intentionally faked by the patient.", "The onset of this severe physical symptom occurred immediately following a traumatic argument."],
+                info: "<strong>Description:</strong> Conversion Disorder (Functional Neurological Symptom Disorder) involves symptoms of altered voluntary motor or sensory function that cannot be explained by neurological or medical conditions. Clinical findings must provide clear evidence of incompatibility between the symptom and recognized neurological pathology. The symptoms are genuine, not malingered, and cause significant distress or impairment. It often presents with motor weakness, abnormal movements, or sensory loss. Modern neurology views it as a network functioning issue rather than structural brain damage.<br><br><strong>Fun Fact:</strong> The term 'conversion' stems from Freud's theory, which posited that severe, unmanageable psychological stress is 'converted' into physical neurological symptoms to reduce psychological tension."
+            },
+            {
+                answer: "Adjustment Disorder", difficulty: "Medium",
+                hints: ["A 19-year-old man relocated across the country for college three months ago.", "He has developed a significant depressed mood and tearfulness directly in response to this move.", "His emotional distress has caused him to completely isolate from his new dorm mates.", "His symptoms represent a maladaptive emotional response to an identifiable psychosocial stressor.", "Clinicians expect his symptoms to fully resolve within six months as he adapts to campus life."],
+                info: "<strong>Description:</strong> Adjustment Disorder is diagnosed when an individual exhibits an impaired ability to adapt to a specific psychosocial stressor, such as starting college, a breakup, or a medical diagnosis. The symptoms must begin within 3 months of the stressor. The emotional distress causes marked impairment in social or occupational functioning. The symptoms do not meet criteria for another specific mental disorder. It is a highly common diagnosis used to address significant distress that falls short of major depressive or anxiety disorders.<br><br><strong>Fun Fact:</strong> Unlike PTSD, which requires an extreme, life-threatening trauma, Adjustment Disorder is triggered by common, everyday life transitions and is inherently expected to be time-limited."
+            },
+            {
+                answer: "Excoriation Disorder", difficulty: "Medium",
+                hints: ["A 45-year-old woman spends excessive hours locked in her bathroom staring in the mirror.", "She repetitively picks at minor facial blemishes, causing deep scabbing and permanent scarring.", "She feels profound shame and attempts to camouflage the tissue damage with heavy makeup.", "She describes the picking behavior as an automatic response when she feels stressed or bored.", "Her persistent picking has resulted in recurrent skin infections requiring antibiotic treatment."],
+                info: "<strong>Description:</strong> Excoriation Disorder is characterized by the repeated urge to pick at one's own skin, often to the extent that severe tissue damage, scarring, and medical complications result. The behavior is often a self-soothing mechanism or an automatic response to anxiety or boredom, rather than a response to a delusion. The individual must make repeated attempts to decrease or stop the behavior, demonstrating it is compulsive and unwanted. The behavior causes clinically significant distress. Therapy focuses on awareness training and competing response training.<br><br><strong>Fun Fact:</strong> Skin-picking is frequently observed in individuals who also have other Obsessive-Compulsive spectrum disorders, and treatment protocols overlap significantly with those used for hair-pulling."
+            },
+            {
+                answer: "Persistent Depressive Disorder", difficulty: "Medium",
+                hints: ["A 38-year-old man describes his entire adult life as a 'gray, joyless slog'.", "He has functioned with a chronically low, melancholic mood for the past three years.", "He consistently battles low self-esteem and struggles to make simple daily decisions.", "While he avoids acute major depressive crashes, this mild depression is absolutely relentless.", "He has never experienced a gap longer than a few weeks without feeling depressed."],
+                info: "<strong>Description:</strong> Persistent Depressive Disorder (PDD) is diagnosed when a depressed mood is present for most of the day, for more days than not, spanning at least 2 years. Accompanying symptoms can include poor appetite, insomnia, low energy, low self-esteem, poor concentration, and feelings of hopelessness. The symptoms cause clinically significant distress but do not necessarily incapacitate the individual the way acute Major Depressive Episodes do. The chronic nature of the disorder severely impacts overall quality of life. Long-term psychotherapy combined with medication is often utilized.<br><br><strong>Fun Fact:</strong> Because the onset is often insidious and occurs early in life, individuals rarely seek treatment on their own, assuming their chronic melancholy is simply their baseline personality."
+            },
+            {
+                answer: "Gambling Disorder", difficulty: "Medium",
+                hints: ["A 41-year-old woman spends every weekend at local casinos playing slot machines.", "She consistently chases her losses, returning the next day in desperate attempts to win back her money.", "She has borrowed heavily from friends and family to finance her continuous betting habit.", "She becomes highly restless and irritable when her spouse begs her to stay home.", "She actively deceives her family regarding the massive amount of time and money she squanders."],
+                info: "<strong>Description:</strong> Gambling Disorder is a non-substance addictive disorder characterized by persistent and recurrent maladaptive gambling behavior that disrupts personal, family, or vocational pursuits. Key diagnostic markers include needing to gamble with increasing amounts of money to achieve desired excitement, repeated unsuccessful efforts to stop, and gambling when distressed. The individual frequently relies on others to provide money to relieve desperate financial situations caused by gambling. It activates the brain's reward systems similarly to drugs of abuse. Treatment often requires specialized addiction counseling.<br><br><strong>Fun Fact:</strong> The cognitive distortions associated with this disorder include the 'gambler's fallacy'—the erroneous belief that past independent events affect future probabilities."
+            },
+            {
+                answer: "Specific Learning Disorder", difficulty: "Medium",
+                hints: ["An 8-year-old boy excels in reading comprehension but consistently fails his math exams.", "He has severe, persistent difficulty mastering basic number sense and calculation (dyscalculia).", "Standardized testing reveals his mathematical skills are substantially below his chronological age.", "His school provided targeted math tutoring for 6 months, but he showed no significant improvement.", "His profound difficulties are not caused by an intellectual disability or lack of schooling."],
+                info: "<strong>Description:</strong> Specific Learning Disorder requires persistent difficulties in learning and using academic skills despite targeted interventions. The diagnosis requires specifying all areas of impaired academic achievement. Impairment in mathematics includes deficits in number sense, memorization of arithmetic facts, accurate calculation, and math reasoning. The academic skills are quantifiably below expected levels and cause significant interference with academic performance. It requires comprehensive psychoeducational testing for an accurate diagnosis. Interventions involve specialized instructional strategies tailored to the deficit.<br><br><strong>Fun Fact:</strong> To receive this diagnosis, the individual's overall cognitive abilities must be in the normal range, separating it entirely from global intellectual disabilities."
+            },
+            {
+                answer: "Oppositional Defiant Disorder", difficulty: "Hard",
+                hints: ["A 10-year-old boy is described by his exhausted parents as exceptionally argumentative.", "He exhibits a persistent pattern of angry, irritable moods and frequently loses his temper.", "He actively defies rules and refuses to comply with basic requests from teachers and parents.", "He deliberately annoys his siblings and constantly blames others for his own misbehavior.", "Unlike a more severe diagnosis, he has never shown physical aggression toward people or destroyed property."],
+                info: "<strong>Description:</strong> Oppositional Defiant Disorder (ODD) involves a recurrent pattern of angry/irritable mood, argumentative/defiant behavior, or vindictiveness lasting at least 6 months. Symptoms include often losing one's temper, being touchy or easily annoyed, arguing with authority figures, and deliberately annoying others. It causes severe distress in the individual or others in their immediate social context, particularly impacting family dynamics and school performance. It is commonly diagnosed in childhood. Parent Management Training (PMT) is a highly effective, evidence-based intervention.<br><br><strong>Fun Fact:</strong> ODD is distinguished from Conduct Disorder by the severity of behaviors; ODD does not include severe aggression toward people or animals, destruction of property, or a pattern of theft."
+            },
+            {
+                answer: "Premenstrual Dysphoric Disorder", difficulty: "Hard",
+                hints: ["A 33-year-old woman complains of severe, debilitating mood swings occurring monthly.", "She reports marked affective lability, intense irritability, and physical symptoms like breast tenderness.", "These intense symptoms reliably manifest during the final week before the onset of menses.", "Her symptoms rapidly improve within a few days after her cycle begins and disappear postmenses.", "Her physician confirmed the symptom pattern through prospective daily ratings over two cycles."],
+                info: "<strong>Description:</strong> Premenstrual Dysphoric Disorder (PMDD) is a severe and disabling extension of premenstrual syndrome (PMS). The core feature is the expression of severe mood lability, irritability, depressed mood, and anxiety that repeatedly occur during the late luteal phase of the menstrual cycle and remit around the onset of menses. To confirm the diagnosis, the symptom pattern must be prospectively documented by daily ratings over at least two symptomatic cycles. The symptoms cause clinically significant distress or interference with work and relationships. Hormonal treatments and antidepressants are commonly used.<br><br><strong>Fun Fact:</strong> SSRIs are highly effective for PMDD even when taken solely during the luteal phase, acting much faster than when treating traditional depression."
+            },
+            {
+                answer: "Kleptomania", difficulty: "Hard",
+                hints: ["A 22-year-old woman was recently arrested for shoplifting cheap items from a store.", "She stole items she absolutely did not need for personal use and had the money to buy.", "She describes a powerful, escalating sense of tension immediately before committing the theft.", "She reports experiencing a rush of pleasure, gratification, and relief while stealing the items.", "Her actions are not motivated by anger, vengeance, or a psychotic delusion."],
+                info: "<strong>Description:</strong> Kleptomania is an Impulse-Control Disorder characterized by a recurrent failure to resist impulses to steal objects that are not needed for personal use or for their monetary value. The individual experiences an increasing sense of tension before committing the theft and feels pleasure, gratification, or relief at the time of committing the act. It is not done out of anger, vengeance, or in response to a delusion. It causes significant distress and legal consequences. Treatment often involves cognitive behavioral therapy to address impulse control.<br><br><strong>Fun Fact:</strong> People with kleptomania frequently hoard the stolen items, throw them away, or secretly return them; the psychological reward is derived entirely from the act of stealing itself."
+            },
+            {
+                answer: "Dissociative Amnesia", difficulty: "Hard",
+                hints: ["A 35-year-old man is brought to the ER after being found wandering aimlessly by police.", "He is entirely unable to recall his own name, his past, or any autobiographical information.", "Comprehensive neuroimaging and toxicology screens reveal a completely normal physical state.", "Collateral history reveals he just survived a horrific and traumatic house fire.", "His profound memory loss is vastly inconsistent with ordinary forgetfulness."],
+                info: "<strong>Description:</strong> Dissociative Amnesia involves an inability to recall important autobiographical information, usually of a traumatic or stressful nature, that is inconsistent with ordinary forgetting. It can be localized, selective, or generalized (complete loss of memory for one's life history). The amnesia is not caused by neurobiological damage, toxicity, or a medical condition. It causes clinically significant distress or impairment. Psychotherapy aims to safely process the underlying trauma and recover lost memories over time.<br><br><strong>Fun Fact:</strong> The DSM-5 includes a specifier 'with dissociative fugue,' which describes purposeful travel or bewildered wandering that is associated with amnesia for identity."
+            },
+            {
+                answer: "Somatic Symptom Disorder", difficulty: "Hard",
+                hints: ["A 45-year-old woman presents with genuine, persistent lower back pain lasting 9 months.", "Her pain is physically real, but she expends excessive, disproportionate energy worrying about it.", "She harbors constant, severe thoughts regarding the catastrophic seriousness of her back pain.", "She experiences a persistently high, consuming level of anxiety regarding her overall health.", "While the symptom exists, her psychological reaction to it severely impairs her daily life."],
+                info: "<strong>Description:</strong> Somatic Symptom Disorder requires one or more somatic symptoms that are distressing or result in significant disruption of daily life. The core diagnostic criteria require excessive thoughts, feelings, or behaviors related to the somatic symptoms, manifested by disproportionate thoughts about seriousness, high health anxiety, or excessive time devoted to the symptoms. The state of being symptomatic is persistent (typically over 6 months). The patient's suffering is authentic, regardless of medical explanations. Cognitive behavioral therapy focuses on modifying illness beliefs and reducing health anxiety.<br><br><strong>Fun Fact:</strong> Unlike the old DSM-IV diagnosis of Somatization Disorder, the current DSM-5 criteria do not require that the physical symptoms be medically unexplained."
+            },
+            {
+                answer: "Reactive Attachment Disorder", difficulty: "Hard",
+                hints: ["A 5-year-old girl was recently adopted from a severely neglected, understaffed overseas orphanage.", "She exhibits a consistent pattern of emotionally withdrawn behavior toward her new caregivers.", "She rarely seeks comfort when she is distressed and minimally responds when comfort is offered.", "She demonstrates extremely limited social and emotional responsiveness to her environment.", "Her clinical history confirms she suffered from extremes of insufficient care before age two."],
+                info: "<strong>Description:</strong> Reactive Attachment Disorder (RAD) is a trauma- and stressor-related disorder of infancy and early childhood. It is characterized by a consistent pattern of inhibited, emotionally withdrawn behavior toward adult caregivers, where the child rarely seeks or responds to comfort when distressed. Crucially, the child must have experienced a history of extreme insufficient care, such as severe social neglect or repeated changes of primary caregivers. It causes severe impairment in interpersonal functioning. Providing a consistently safe and nurturing environment is the cornerstone of treatment.<br><br><strong>Fun Fact:</strong> The disorder essentially represents a failure to form an internal working model for secure attachments, and the child must have a developmental age of at least 9 months to be diagnosed."
+            },
+            {
+                answer: "Schizotypal Personality Disorder", difficulty: "Hard",
+                hints: ["A 30-year-old man lives entirely alone and lacks any close friends besides first-degree relatives.", "He experiences acute, pervasive discomfort in social settings and struggles to relate to others.", "He exhibits highly odd beliefs and magical thinking, convinced he has telepathic abilities.", "His conversational speech is often vague, circumstantial, and overly metaphorical.", "His behavior is highly eccentric, but he does not experience true, full-blown hallucinations."],
+                info: "<strong>Description:</strong> Schizotypal Personality Disorder is a Cluster A personality disorder defined by a pervasive pattern of social and interpersonal deficits, marked by acute discomfort with close relationships. It also requires cognitive or perceptual distortions and eccentricities of behavior. Traits include ideas of reference, odd beliefs, unusual perceptual experiences, odd speech, suspiciousness, and inappropriate affect. Individuals often seek treatment for associated anxiety or depression rather than the personality features themselves. Social skills training can be beneficial.<br><br><strong>Fun Fact:</strong> Schizotypal is unique because it is listed both under Personality Disorders and on the Schizophrenia Spectrum, considered a milder phenotypic expression of the genetic vulnerability for schizophrenia."
+            },
+            {
+                answer: "Disruptive Mood Dysregulation Disorder", difficulty: "Hard",
+                hints: ["An 11-year-old boy presents to the clinic with severe, highly recurrent temper outbursts.", "These violent outbursts occur multiple times a week and are grossly out of proportion to triggers.", "Between these meltdowns, his baseline mood is persistently irritable and angry every single day.", "These severe symptoms have been observed by teachers and parents for over a year.", "His clinical history confirms the onset of these specific symptoms began before age 10."],
+                info: "<strong>Description:</strong> Disruptive Mood Dysregulation Disorder (DMDD) was created in the DSM-5 to address concerns about the overdiagnosis of Bipolar Disorder in children. It is characterized by severe, recurrent temper outbursts manifested verbally or behaviorally that are grossly out of proportion to the situation. Between outbursts, the child's mood is persistently irritable or angry. The diagnosis should not be made for the first time before age 6 or after age 18. It causes severe impairment across multiple settings. Treatment focuses on behavioral management and emotional regulation skills.<br><br><strong>Fun Fact:</strong> Children with DMDD are actually at an elevated risk of developing unipolar Major Depressive Disorder or generalized anxiety as adults, rather than Bipolar Disorder."
+            },
+            {
+                answer: "Intermittent Explosive Disorder", difficulty: "Hard",
+                hints: ["A 27-year-old man seeks clinical help for his severe, uncontrollable 'anger issues'.", "He reports recurrent behavioral outbursts that represent a total failure to control aggressive impulses.", "He frequently engages in intense verbal aggression and recently threw a chair through a window.", "His explosive reactions are grossly out of proportion to any minor provocation.", "The outbursts are impulsive, not premeditated, and not done to achieve a tangible objective."],
+                info: "<strong>Description:</strong> Intermittent Explosive Disorder involves recurrent behavioral outbursts representing a failure to control aggressive impulses. The outbursts can be manifested by verbal aggression or physical aggression toward property, animals, or other individuals. The magnitude of aggressiveness is grossly out of proportion to the provocation. Crucially, the outbursts are impulsive, not premeditated, and not committed to achieve a tangible objective like money or intimidation. It causes significant distress and often leads to legal issues. Cognitive Behavioral Therapy is used to improve impulse control.<br><br><strong>Fun Fact:</strong> Serotonergic abnormalities in the limbic system and frontal cortex are highly implicated in this disorder, and treatments often involve SSRIs."
+            },
+            {
+                answer: "Brief Psychotic Disorder", difficulty: "Hard",
+                hints: ["A 24-year-old woman is brought to the emergency department by her concerned sister.", "She exhibits a highly abrupt onset of intense delusions and auditory hallucinations.", "These acute symptoms began exactly two days after the sudden, tragic death of her husband.", "She does not exhibit any negative symptoms like avolition, flat affect, or severe disorganization.", "Her symptoms completely resolve within 3 weeks, and she returns fully to normal functioning."],
+                info: "<strong>Description:</strong> Brief Psychotic Disorder is characterized by the sudden onset of at least one major psychotic symptom: delusions, hallucinations, disorganized speech, or grossly disorganized/catatonic behavior. The episode must last at least 1 day but less than 1 month, with an eventual full return to the premorbid level of functioning. It lacks the negative symptoms typically seen in schizophrenia. Antipsychotics may be used briefly to manage acute symptoms. It represents a severe, but highly temporary, break from reality.<br><br><strong>Fun Fact:</strong> This diagnosis can include a specifier 'with marked stressor(s)' (historically called brief reactive psychosis) if symptoms occur in response to profoundly stressful events."
+            },
+            {
+                answer: "Schizoaffective Disorder", difficulty: "Hard",
+                hints: ["A 31-year-old woman is currently experiencing a severe major depressive episode.", "Simultaneously, she actively suffers from prominent delusions and auditory hallucinations.", "Notably, her medical records show she experienced these psychotic symptoms for two weeks entirely independent of any mood episode.", "Her complex presentation is not attributable to illicit substance use or medication.", "Mood symptoms have been present for the majority of the total duration of her illness."],
+                info: "<strong>Description:</strong> Schizoaffective Disorder requires an uninterrupted period of illness during which there is a major mood episode concurrent with Criterion A of schizophrenia. The critical distinguishing feature is that delusions or hallucinations must occur for 2 or more weeks in the absence of a major mood episode during the lifetime duration of the illness. Mood symptoms must be present for the majority of the total duration of the active and residual portions of the illness. It bridges the gap between schizophrenia and mood disorders. Treatment involves a combination of antipsychotics and mood stabilizers/antidepressants.<br><br><strong>Fun Fact:</strong> Because symptom tracking over the patient's entire lifetime is required to prove psychotic symptoms exist independent of mood episodes, it is notoriously difficult to accurately diagnose."
+            },
+            {
+                answer: "Factitious Disorder", difficulty: "Hard",
+                hints: ["A 28-year-old nurse presents to the hospital suffering from unexplained, severe hypoglycemia.", "Lab tests reveal high insulin levels but low C-peptide, proving she secretly injected exogenous insulin.", "She intentionally falsified her physical signs of illness to be admitted to the ward.", "She presents herself to hospital staff as genuinely ill and severely impaired.", "Her deceptive behavior occurs without any obvious external rewards like money or avoiding work."],
+                info: "<strong>Description:</strong> Factitious Disorder involves the falsification of physical or psychological signs or symptoms, or the induction of injury or disease, associated with identified deception. The individual presents themselves to others as ill, impaired, or injured. Crucially, the deceptive behavior is evident even in the absence of obvious external rewards. The behavior causes significant clinical challenges and unnecessary, often dangerous, medical procedures. Confrontation must be handled delicately to prevent the patient from fleeing care. It was formerly known as Munchausen syndrome.<br><br><strong>Fun Fact:</strong> Factitious Disorder differs fundamentally from Malingering; in Malingering, the individual fakes illness for an external reward, whereas here, the motivation is an internal psychological need to assume the 'sick role.'"
+            },
+            {
+                answer: "Paranoid Personality Disorder", difficulty: "Hard",
+                hints: ["A 45-year-old man was fired from three jobs for aggressively accusing co-workers of sabotaging him.", "He exhibits a pervasive, rigid distrust and intense suspiciousness of everyone around him.", "He firmly suspects, without any evidence, that others are exploiting or deceiving him.", "He refuses to confide in others, fearing the information will be used maliciously against him.", "He persistently bears deep grudges and is entirely unforgiving of minor, perceived slights."],
+                info: "<strong>Description:</strong> Paranoid Personality Disorder is a Cluster A personality disorder defined by a pervasive distrust and suspiciousness of others such that their motives are interpreted as malevolent. Traits include suspecting exploitation, being preoccupied with unjustified doubts about loyalty, reluctance to confide in others, reading hidden threatening meanings into benign remarks, and bearing persistent grudges. It causes significant impairment in interpersonal and occupational functioning. Treating these individuals is exceptionally difficult because they naturally view the therapist with intense suspicion. Group therapy is generally contraindicated.<br><br><strong>Fun Fact:</strong> Unlike Delusional Disorder, where paranoia is a fixed, bizarre false belief, individuals with this disorder experience paranoia as a generalized, pervasive worldview."
+            },
+            {
+                answer: "Avoidant Personality Disorder", difficulty: "Hard",
+                hints: ["A 26-year-old man deeply craves romantic relationships but is absolutely terrified to date.", "He shows a pervasive pattern of social inhibition and profound feelings of inadequacy.", "He actively avoids jobs with interpersonal contact due to severe fears of criticism and rejection.", "He is unwilling to interact with people unless he is 100% certain he will be liked.", "He consistently views himself as socially inept, unappealing, and fundamentally inferior to others."],
+                info: "<strong>Description:</strong> Avoidant Personality Disorder is a Cluster C personality disorder characterized by a pervasive pattern of social inhibition, feelings of inadequacy, and hypersensitivity to negative evaluation. Symptoms include avoiding jobs with interpersonal contact, restraint in intimate relationships due to fear of shame, and viewing oneself as socially inept. The fear of rejection is so overwhelming that individuals often choose severe isolation despite desiring connection. It causes significant distress and impairs quality of life. Cognitive Behavioral Therapy focuses on building self-esteem and desensitizing fears of rejection.<br><br><strong>Fun Fact:</strong> While individuals with Schizoid Personality Disorder isolate because they have no desire for connection, Avoidant individuals desperately crave connection but isolate out of profound fear."
+            },
+            {
+                answer: "Obsessive-Compulsive Personality Disorder", difficulty: "Hard",
+                hints: ["A 40-year-old office manager is widely despised by staff as an extreme micromanager.", "He is obsessed with lists, rules, and order, completely losing the main point of any activity.", "His rigid perfectionism actively interferes with his ability to complete basic tasks.", "He is excessively devoted to productivity, completely excluding leisure and friendships.", "Despite his rigidity, he does not experience true, intrusive obsessions or physical compulsions."],
+                info: "<strong>Description:</strong> Obsessive-Compulsive Personality Disorder (OCPD) is a Cluster C personality disorder involving a pervasive pattern of preoccupation with orderliness, perfectionism, and control, at the expense of flexibility and efficiency. Symptoms include preoccupation with rules, perfectionism that interferes with task completion, excessive devotion to work, and reluctance to delegate. These traits significantly impair occupational efficiency and personal relationships. Individuals with OCPD are often highly stubborn and inflexible regarding matters of morality or values. Therapy focuses on increasing flexibility and reducing rigid expectations.<br><br><strong>Fun Fact:</strong> OCPD is usually 'ego-syntonic' (they believe their rigid way of operating is correct), whereas OCD is 'ego-dystonic' (the individual knows their obsessions are irrational)."
+            },
+            {
+                answer: "Disinhibited Social Engagement Disorder", difficulty: "Hard",
+                hints: ["A 6-year-old boy entered the foster system after experiencing severe early childhood neglect.", "He exhibits a highly concerning pattern of actively approaching unfamiliar adults.", "He shows absolutely no reticence or normal hesitation when interacting with strangers.", "He will willingly wander off with an unfamiliar adult with zero hesitation or checking back.", "His dangerous impulsivity is directly linked to his history of pathogenic, insufficient care."],
+                info: "<strong>Description:</strong> Disinhibited Social Engagement Disorder is a trauma-related disorder of childhood resulting from severe social neglect. It is characterized by a pattern of behavior in which a child actively approaches and interacts with unfamiliar adults. The child exhibits overly familiar verbal or physical behavior, diminished checking back with adult caregivers, and a willingness to go off with unfamiliar adults. It causes significant impairment and safety risks. The behavior is not simply a symptom of ADHD impulsivity. Providing a stable, safe caregiving environment is essential for recovery.<br><br><strong>Fun Fact:</strong> This diagnosis shares the same traumatic etiology as Reactive Attachment Disorder, but these children externalize the lack of secure attachment by seeking comfort indiscriminately from strangers."
+            },
+            {
+                answer: "Gender Dysphoria", difficulty: "Hard",
+                hints: ["A 14-year-old assigned female at birth experiences severe distress as puberty progresses.", "He expresses an overwhelming desire to be treated as a boy and insists he is male.", "He exhibits a marked incongruence between his experienced gender and his assigned gender.", "He expresses a profound desire to be rid of his developing secondary sex characteristics.", "This clinical distress regarding his gender incongruence has persisted for over six months."],
+                info: "<strong>Description:</strong> Gender Dysphoria represents a marked incongruence between one's experienced/expressed gender and assigned gender, lasting at least 6 months. It is manifested by a strong desire to be rid of one's primary/secondary sex characteristics, a strong desire for the sex characteristics of the other gender, and a strong desire to be treated as the other gender. The condition must cause clinically significant distress or impairment in social, occupational, or other important areas of functioning. Treatment often involves gender-affirming medical care and psychological support. The diagnosis acknowledges the distress of incongruence, not the identity itself.<br><br><strong>Fun Fact:</strong> The DSM-5 renamed this from 'Gender Identity Disorder' to recognize that gender nonconformity is not a mental disorder; the psychiatric diagnosis strictly focuses on the clinical distress (dysphoria)."
+            },
+            {
+                answer: "Enuresis", difficulty: "Hard",
+                hints: ["A 6-year-old boy repeatedly voids urine into his bed during the night.", "The bedwetting behavior is entirely involuntary and occurs while he is deeply asleep.", "This specific behavior has occurred at least twice a week for three consecutive months.", "The patient's developmental and chronological age is at least 5 years old.", "The bedwetting is not caused by a diuretic medication or a medical issue like spina bifida."],
+                info: "<strong>Description:</strong> Enuresis involves repeated voiding of urine into bed or clothes, whether involuntary or intentional. The behavior must be clinically significant, manifested by a frequency of at least twice a week for at least 3 consecutive months, or by the presence of clinically significant distress. Chronological age must be at least 5 years. It is highly prevalent in childhood and causes significant social embarrassment. It is crucial to rule out urinary tract infections or neurogenic bladder issues before diagnosis. Behavioral interventions are highly preferred over medication.<br><br><strong>Fun Fact:</strong> One of the most effective treatments is the 'bell-and-pad' method, which uses classical conditioning to wake the child at the first drop of moisture, training the brain to wake to a full bladder."
+            },
+            {
+                answer: "Stereotypic Movement Disorder", difficulty: "Hard",
+                hints: ["A 7-year-old boy repeatedly and forcefully bangs his head against the living room wall.", "He also engages in complex, repetitive hand-waving that is entirely nonfunctional.", "These driven motor behaviors significantly interfere with his ability to participate in school.", "The onset of these purposeless movements was observed in his early developmental period.", "The movements are not attributable to a tic disorder or Autism Spectrum Disorder."],
+                info: "<strong>Description:</strong> Stereotypic Movement Disorder involves repetitive, seemingly driven, and apparently purposeless motor behavior, such as hand shaking, body rocking, head banging, or self-biting. The repetitive movements interfere with social, academic, or other activities and may result in self-injury. The onset is in the early developmental period. It causes significant distress or impairment. Safety measures are often required for individuals exhibiting severe self-injurious behavior. Behavioral interventions aim to redirect the movements.<br><br><strong>Fun Fact:</strong> A diagnosis of Stereotypic Movement Disorder is only given if the repetitive movements cause significant impairment and are NOT better explained by the core symptoms of Autism Spectrum Disorder."
+            },
+            {
+                answer: "Narcolepsy", difficulty: "Hard",
+                hints: ["A 24-year-old woman frequently falls entirely asleep in the middle of active conversations.", "She experiences an irrepressible need to sleep occurring daily for over three months.", "She suffers episodes of sudden, bilateral muscle weakness triggered by laughing (cataplexy).", "Her specialized sleep studies indicate a severe hypocretin deficiency in her cerebrospinal fluid.", "She frequently experiences terrifying sleep paralysis immediately upon waking up."],
+                info: "<strong>Description:</strong> Narcolepsy is a sleep-wake disorder characterized by recurrent periods of an irrepressible need to sleep, lapsing into sleep, or napping occurring within the same day. Diagnosis requires the presence of episodes of cataplexy (sudden bilateral loss of muscle tone triggered by emotion), hypocretin deficiency, or specific REM sleep abnormalities on polysomnography. It causes profound daytime impairment and occupational hazards. It is a lifelong neurological condition. Central nervous system stimulants are typically prescribed to manage daytime sleepiness.<br><br><strong>Fun Fact:</strong> The abrupt muscle weakness of cataplexy occurs because the brain inappropriately triggers the muscle paralysis normally associated with REM sleep while the individual is awake."
+            },
+            {
+                answer: "Obstructive Sleep Apnea Hypopnea", difficulty: "Hard",
+                hints: ["A 55-year-old obese man complains of severe, unrefreshing sleep and daytime fatigue.", "His wife reports he snores incredibly loudly and frequently stops breathing during the night.", "Polysomnography reveals 20 episodes per hour of breathing cessation during sleep.", "These apneas occur despite the patient showing ongoing physical respiratory effort.", "His severe sleep fragmentation leads to extreme lethargy and cardiovascular strain."],
+                info: "<strong>Description:</strong> Obstructive Sleep Apnea Hypopnea (OSAH) is diagnosed by polysomnography showing evidence of at least five obstructive apneas or hypopneas per hour of sleep, combined with nocturnal breathing disturbances (snoring, gasping) or daytime sleepiness. Alternatively, 15 or more episodes per hour automatically confirm the diagnosis. The disorder is characterized by repeated episodes of upper airway collapse and obstruction during sleep. It causes significant cardiovascular strain and elevates the risk for hypertension. Weight loss and positional therapy can mitigate mild symptoms.<br><br><strong>Fun Fact:</strong> Because the brain must briefly wake up to resume breathing, individuals with OSAH never achieve deep, restorative sleep; Continuous Positive Airway Pressure (CPAP) remains the gold-standard treatment."
+            },
+            {
+                answer: "Stimulant Use Disorder", difficulty: "Hard",
+                hints: ["A 22-year-old student initially bought Adderall from a peer to assist with studying.", "He now crushes and snorts the pills daily to achieve a powerful euphoric rush.", "He requires increasingly massive doses to achieve the original effects he desires.", "When stopping, he suffers profound fatigue, vivid nightmares, and an insatiable appetite.", "He continues to heavily abuse the drug despite experiencing severe, drug-induced paranoia."],
+                info: "<strong>Description:</strong> Stimulant Use Disorder describes a pattern of amphetamine-type substance, cocaine, or other stimulant use leading to significant impairment. Symptoms follow the standard substance use criteria, including craving, tolerance, failure to fulfill obligations, and withdrawal. Stimulant withdrawal is characterized by profound dysphoria ('crashing'), severe fatigue, vivid unpleasant dreams, and increased appetite. The disorder causes massive disruptions in occupational and social functioning. Behavioral therapies are the primary treatment modality, as there are no FDA-approved medications for stimulant dependence.<br><br><strong>Fun Fact:</strong> Severe, prolonged abuse of stimulants can induce a substance-induced psychotic disorder that perfectly mimics acute schizophrenia, featuring prominent paranoid delusions and hallucinations of bugs under the skin."
+            },
+            {
+                answer: "Encopresis", difficulty: "Hard",
+                hints: ["A 7-year-old girl repeatedly passes feces into her clothing during the school day.", "The event is largely involuntary, though she attempts to hide the soiled underwear out of shame.", "This socially distressing behavior has occurred at least once a month for three months.", "The patient's developmental and chronological age is at least 4 years old.", "The behavior is not caused by laxatives, except through a mechanism involving severe constipation."],
+                info: "<strong>Description:</strong> Encopresis involves the repeated passage of feces into inappropriate places, whether involuntary or intentional. The event must occur at least once each month for at least 3 months, and the chronological age of the child must be at least 4 years. The DSM-5 specifies two subtypes: with constipation and overflow incontinence, and without constipation. It causes immense social embarrassment and familial stress. Thorough medical evaluation is necessary to address bowel functioning. Treatment usually involves laxative regimens combined with behavioral toilet training.<br><br><strong>Fun Fact:</strong> The vast majority of encopresis cases are caused by severe, chronic constipation; the colon becomes so impacted that it loses sensation, allowing liquid stool to leak entirely without the child's knowledge."
+            },
+            {
+                answer: "Mild Neurocognitive Disorder", difficulty: "Hard",
+                hints: ["A 68-year-old woman's daughter notes she is becoming increasingly forgetful of appointments.", "Clinical testing reveals a modest but real cognitive decline from her previous baseline.", "Crucially, these cognitive deficits do not interfere with her independence in daily activities.", "She still pays her own bills and manages her complex medication regimen with extra effort.", "Her mild cognitive decline is not occurring exclusively during an episode of delirium."],
+                info: "<strong>Description:</strong> Mild Neurocognitive Disorder requires evidence of modest cognitive decline from a previous level of performance in one or more cognitive domains, quantified by clinical assessment. The crucial distinction from Major NCD is that the cognitive deficits do not interfere with the capacity for independence in everyday activities, though greater effort or compensatory strategies may be required. It causes distress but allows the patient to maintain autonomy. Regular monitoring is essential to track potential progression to Major NCD. Addressing cardiovascular risk factors can sometimes slow progression.<br><br><strong>Fun Fact:</strong> This diagnosis recognizes that individuals can experience real, measurable cognitive decline before reaching the severe threshold of dementia, allowing for earlier intervention and life planning."
+            },
+            {
+                answer: "Language Disorder", difficulty: "Hard",
+                hints: ["A 4-year-old boy possesses a vocabulary that is drastically smaller than his peers.", "He exhibits persistent difficulties acquiring and using language across all modalities.", "He struggles to produce coherent sentences and makes severe, frequent grammatical errors.", "His language abilities are quantifiably measured to be substantially below age expectations.", "His profound deficits are not caused by hearing impairment or physical motor dysfunction."],
+                info: "<strong>Description:</strong> Language Disorder is a neurodevelopmental disorder characterized by persistent difficulties in the acquisition and use of language across modalities (spoken, written, sign) due to deficits in comprehension or production. Symptoms include reduced vocabulary, limited sentence structure, and severe impairments in discourse. Language abilities are substantially below those expected for age, causing functional limitations in communication and academic participation. It usually presents in the early developmental period. Speech-language therapy is the primary intervention.<br><br><strong>Fun Fact:</strong> It strictly involves language processing and cognitive production, differentiating it entirely from Speech Sound Disorder, which is primarily a mechanical issue with physical articulation."
+            },
+            {
+                answer: "Depersonalization/Derealization Disorder", difficulty: "Very Hard",
+                hints: ["A 29-year-old man presents highly distressed about his altered perception of reality.", "He reports persistent feelings of being detached from his own mind, like an outside observer.", "He describes the physical world around him as feeling 'foggy, dreamlike, and visually distorted'.", "Despite these severe dissociative experiences, his reality testing remains completely intact.", "His symptoms are not induced by hallucinogens, medications, or a seizure disorder."],
+                info: "<strong>Description:</strong> Depersonalization/Derealization Disorder involves the persistent or recurrent presence of depersonalization (experiences of unreality, detachment, or being an outside observer with respect to one's thoughts or body) and/or derealization (experiences of unreality with respect to surroundings). During these experiences, reality testing must remain completely intact. The symptoms cause clinically significant distress or impairment. It often arises in the context of severe trauma or panic. Psychotherapy focuses on grounding techniques and addressing underlying anxiety.<br><br><strong>Fun Fact:</strong> While fleeting experiences of depersonalization are a normal human response to severe anxiety or sleep deprivation, it only becomes a disorder when the episodes are recurrent and functionally impairing."
+            },
+            {
+                answer: "Pyromania", difficulty: "Very Hard",
+                hints: ["A 19-year-old man is under police investigation for multiple deliberate cases of arson.", "He has purposefully set fires on numerous occasions without any external, logical motive.", "He demonstrates a profound, obsessive fascination with fire engines and emergency responses.", "He experiences a build-up of tension before the act, and immense relief when setting the fire.", "His fires are not set for insurance money, to conceal a crime, or out of political ideology."],
+                info: "<strong>Description:</strong> Pyromania is an Impulse-Control Disorder involving deliberate and purposeful fire setting on more than one occasion. The individual experiences tension or affective arousal before the act and has a deep fascination with fire and its situational contexts. Setting fires provides pleasure, gratification, or relief. Crucially, the fires are not set for monetary gain, to conceal criminal activity, or to express anger. It causes significant legal and safety consequences. Treatment involves specialized impulse-control therapies.<br><br><strong>Fun Fact:</strong> Pyromania is actually exceedingly rare; the vast majority of arsonists diagnosed in forensic settings do not meet these criteria, as they set fires for external motives like fraud or revenge."
+            },
+            {
+                answer: "Dissociative Identity Disorder", difficulty: "Very Hard",
+                hints: ["A 36-year-old woman presents with severe, inexplicable gaps in her daily memory.", "She recurrently fails to recall everyday events, personal data, and severe childhood trauma.", "Observation reveals the presence of two distinct personality states that alternately control her behavior.", "These profound identity alterations cause her massive distress and impairment.", "Her presentation is not a normal part of a widely accepted religious or cultural practice."],
+                info: "<strong>Description:</strong> Dissociative Identity Disorder (DID) is characterized by a disruption of identity characterized by two or more distinct personality states. This involves marked discontinuity in sense of self and agency, accompanied by related alterations in affect, behavior, memory, perception, and sensory-motor functioning. It also involves recurrent gaps in the recall of everyday events or traumatic information. It causes clinically significant distress. Therapy is highly specialized, focusing on processing trauma and integrating fragmented identities.<br><br><strong>Fun Fact:</strong> Formerly known as Multiple Personality Disorder, DID is almost exclusively linked to histories of severe, inescapable childhood trauma, serving as an extreme dissociative coping mechanism."
+            },
+            {
+                answer: "Dependent Personality Disorder", difficulty: "Very Hard",
+                hints: ["A 40-year-old woman is highly distressed after her long-term romantic partner left her.", "She exhibits a pervasive, overwhelming psychological need to be taken care of by others.", "This need drives intensely submissive, clinging behavior and a severe fear of separation.", "She is incapable of making everyday decisions without excessive reassurance and advice.", "She feels completely helpless when alone and urgently seeks a new partner to support her."],
+                info: "<strong>Description:</strong> Dependent Personality Disorder is a Cluster C personality disorder marked by a pervasive and excessive need to be taken care of, leading to submissive and clinging behavior and fears of separation. Criteria include difficulty making everyday decisions without excessive reassurance, needing others to assume responsibility for major areas of life, and urgently seeking another relationship as a source of care when one ends. The disorder causes profound impairment in autonomy. Psychotherapy focuses on building self-efficacy and independence.<br><br><strong>Fun Fact:</strong> Individuals with this disorder frequently tolerate immense emotional or even physical abuse rather than endure the terrifying prospect of being alone and fending for themselves."
+            },
+            {
+                answer: "Rapid Eye Movement Sleep Behavior Disorder", difficulty: "Very Hard",
+                hints: ["A 65-year-old man is referred to a sleep clinic after injuring his wife during the night.", "He experiences sleep arousals associated with loud vocalizations and complex motor actions.", "He appears to violently 'act out his dreams' by punching and kicking while asleep.", "Upon waking from these episodes, he is instantly alert, completely awake, and not confused.", "Polysomnography confirms he enters REM sleep without the expected normal muscle atonia."],
+                info: "<strong>Description:</strong> Rapid Eye Movement (REM) Sleep Behavior Disorder involves repeated episodes of arousal during sleep associated with vocalization and/or complex motor behaviors. These behaviors arise exclusively during REM sleep. Upon awakening from these episodes, the individual is completely awake, alert, and not confused. Polysomnography must show evidence of REM sleep without atonia (the normal muscle paralysis that prevents us from acting out dreams). It causes significant distress and risks of physical injury to the patient and bed partner. Clonazepam is a frequently utilized treatment.<br><br><strong>Fun Fact:</strong> This disorder is highly predictive of future neurodegenerative disease; a massive percentage of patients eventually develop Parkinson's disease or Lewy body dementia."
+            },
+            {
+                answer: "Schizophreniform Disorder", difficulty: "Very Hard",
+                hints: ["A 23-year-old man presents with bizarre paranoid delusions and disorganized speech.", "He also suffers from prominent auditory hallucinations commanding him to hide.", "His severe psychotic symptoms have been consistently present for exactly 3 months.", "His ability to function socially and occupationally has drastically declined.", "He has not yet reached the 6-month symptom duration required for a diagnosis of Schizophrenia."],
+                info: "<strong>Description:</strong> Schizophreniform Disorder is characterized by the identical symptomatic presentation of Schizophrenia (delusions, hallucinations, disorganized speech, disorganized behavior, and negative symptoms). The sole defining difference is the duration: an episode of the disorder must last at least 1 month but less than 6 months. When the diagnosis must be made without waiting for recovery, it is qualified as 'provisional.' It causes significant impairment in functioning during the active phase. Antipsychotic medication is the primary treatment modality.<br><br><strong>Fun Fact:</strong> Roughly two-thirds of individuals initially diagnosed with Schizophreniform Disorder will eventually cross the 6-month threshold and receive a final diagnosis of Schizophrenia, making it a 'waiting room' diagnosis."
+            },
+            {
+                answer: "Avoidant/Restrictive Food Intake Disorder", difficulty: "Very Hard",
+                hints: ["A 10-year-old boy is brought in due to alarming weight loss over the past six months.", "He exhibits a severe eating disturbance based entirely on a profound aversion to 'mushy' textures.", "His severe restriction requires him to depend on medical oral nutritional supplements.", "He shows absolutely no disturbance in how he views his body weight or physical shape.", "His food refusal is completely unrelated to any psychological fear of becoming fat."],
+                info: "<strong>Description:</strong> Avoidant/Restrictive Food Intake Disorder (ARFID) is an eating disturbance manifested by a persistent failure to meet appropriate nutritional or energy needs. This leads to significant weight loss, nutritional deficiency, dependence on enteral feeding, or marked interference with psychosocial functioning. Crucially, the disturbance is not explained by lack of available food, and there is absolutely no evidence of a disturbance in body image (no fear of fatness). It causes severe medical complications if untreated. Multidisciplinary treatment involves nutritional rehabilitation and behavioral exposure.<br><br><strong>Fun Fact:</strong> Common drivers of ARFID include extreme sensory sensitivity to food textures/smells, or a conditioned negative response following a traumatic choking or vomiting incident."
+            },
+            {
+                answer: "Selective Mutism", difficulty: "Very Hard",
+                hints: ["A 6-year-old girl is highly talkative, loud, and expressive when safe at home.", "However, she consistently and completely fails to speak while in her school classroom.", "Her failure to speak severely limits her educational progress and peer socialization.", "This disturbance has lasted for 3 months, well past the initial adjustment to a new school year.", "Her silence is not due to a lack of knowledge or physical inability to use the language."],
+                info: "<strong>Description:</strong> Selective Mutism is an Anxiety Disorder characterized by a consistent failure to speak in specific social situations in which there is an expectation for speaking (e.g., at school), despite speaking fluently in other situations (e.g., at home). The disturbance interferes with educational achievement or social communication. The duration must be at least 1 month (not limited to the first month of school). The failure to speak is not due to a lack of language knowledge. Behavioral therapy involving stimulus fading is highly effective.<br><br><strong>Fun Fact:</strong> Selective mutism is highly correlated with severe social anxiety; these children are not stubbornly refusing to speak, but are physically frozen by an overwhelming anxiety response."
+            },
+            {
+                answer: "Rumination Disorder", difficulty: "Very Hard",
+                hints: ["An 8-year-old boy presents with a bizarre daily eating habit lasting two months.", "He repeatedly and effortlessly regurgitates his food shortly after swallowing it.", "He proceeds to re-chew and re-swallow the regurgitated food as a self-soothing habit.", "An extensive GI medical workup proves no physical condition is causing the regurgitation.", "This specific behavior does not occur exclusively during an episode of anorexia or bulimia."],
+                info: "<strong>Description:</strong> Rumination Disorder involves the repeated regurgitation of food occurring for a period of at least 1 month. Regurgitated food may be re-chewed, re-swallowed, or spit out. The repeated regurgitation is not attributable to an associated gastrointestinal condition like reflux or pyloric stenosis. It does not occur exclusively during the course of another eating disorder. It causes significant distress and potential nutritional or dental complications. Behavioral interventions are the primary form of treatment.<br><br><strong>Fun Fact:</strong> Unlike vomiting, which is a violent reflex accompanied by nausea, rumination is effortless, non-nauseous, and highly responsive to diaphragmatic breathing techniques."
+            },
+            {
+                answer: "Delusional Disorder", difficulty: "Very Hard",
+                hints: ["A 50-year-old man firmly believes his neighbor is executing a covert plot to poison his dog.", "He has aggressively maintained this false belief for 8 months without a shred of evidence.", "The belief is considered non-bizarre, meaning it describes a scenario that is physically possible.", "He has never experienced hallucinations, and his general behavior is otherwise normal.", "Aside from the direct consequences of his neighbor obsession, his life functioning is unimpaired."],
+                info: "<strong>Description:</strong> Delusional Disorder is characterized by the presence of one or more delusions with a duration of 1 month or longer. Crucially, the full criterion A for Schizophrenia has never been met (meaning hallucinations, if present, are not prominent). Apart from the direct impact of the delusion or its ramifications, functioning is not markedly impaired, and behavior is not obviously bizarre or odd. The DSM-5 specifies several subtypes, including Erotomanic, Grandiose, Jealous, Persecutory, and Somatic. Treatment is challenging due to poor patient insight.<br><br><strong>Fun Fact:</strong> Because the delusions are often non-bizarre and compartmentalized, patients frequently maintain successful jobs and relationships entirely outside the narrow scope of their delusion."
+            },
+            {
+                answer: "Major Neurocognitive Disorder", difficulty: "Very Hard",
+                hints: ["An 82-year-old man exhibits profound, escalating memory impairment and severe apraxia.", "Formal testing reveals a massive cognitive decline from his previous baseline functioning.", "These severe deficits completely eliminate his ability to live independently.", "He requires constant, round-the-clock assistance for basic hygiene, dressing, and eating.", "The decline has been insidious and progressive, not caused by an acute delirious episode."],
+                info: "<strong>Description:</strong> Major Neurocognitive Disorder (NCD) is the DSM-5's updated terminology for what was traditionally called dementia. It requires evidence of significant cognitive decline from a previous level of performance in one or more cognitive domains (complex attention, executive function, memory, language, perceptual-motor). Crucially, the cognitive deficits interfere with independence in everyday activities, requiring assistance with daily living. The diagnosis causes immense distress for patients and caregivers. Medical management focuses on symptom mitigation and safety planning.<br><br><strong>Fun Fact:</strong> The DSM-5 requires clinicians to specify the etiology of the NCD, with the most common being Alzheimer's disease, Lewy body disease, traumatic brain injury, and vascular disease."
+            },
+            {
+                answer: "Schizoid Personality Disorder", difficulty: "Very Hard",
+                hints: ["A 35-year-old man works as a solitary night security guard by choice.", "He genuinely neither desires nor enjoys close relationships or family connections.", "He exclusively pursues solitary hobbies and shows zero interest in sexual or romantic experiences.", "He displays a flat, emotionally cold affect and seems indifferent to social interactions.", "He is entirely unaffected by and indifferent to both praise and criticism from others."],
+                info: "<strong>Description:</strong> Schizoid Personality Disorder is a Cluster A personality disorder defined by a pervasive pattern of detachment from social relationships and a restricted range of expression of emotions in interpersonal settings. Key criteria include neither desiring nor enjoying close relationships, almost always choosing solitary activities, taking pleasure in few activities, lacking close friends, showing indifference to praise/criticism, and displaying emotional coldness. It causes significant impairment in social functioning. Therapy is rarely sought unless mandated or driven by an unrelated crisis.<br><br><strong>Fun Fact:</strong> While Avoidant individuals isolate due to fear of rejection, individuals with Schizoid Personality Disorder isolate simply because they possess a fundamental, genuine lack of desire for human connection."
+            },
+            {
+                answer: "Nightmare Disorder", difficulty: "Very Hard",
+                hints: ["A 20-year-old woman repeatedly wakes up from sleep in a state of sheer terror.", "She vividly remembers extended, highly dysphoric dreams involving threats to her life.", "Upon waking from these terrifying dreams, she rapidly becomes fully alert and oriented.", "These episodes consistently occur during the second half of her major sleep period.", "The severe sleep disturbance causes her significant distress and daytime impairment."],
+                info: "<strong>Description:</strong> Nightmare Disorder involves repeated occurrences of extended, extremely dysphoric, and well-remembered dreams that usually involve efforts to avoid threats to survival or security. These generally occur during the second half of the major sleep episode (during REM sleep). On awakening from the dysphoric dreams, the individual rapidly becomes oriented and alert. The disturbance causes clinically significant distress or impairment. It is frequently comorbid with PTSD. Behavioral therapies like Imagery Rehearsal Therapy are highly effective.<br><br><strong>Fun Fact:</strong> Prazosin, a medication originally developed to lower blood pressure, is frequently prescribed off-label as it effectively blocks the adrenaline receptors that trigger these dreams."
+            },
+            {
+                answer: "Non-Rapid Eye Movement Sleep Arousal Disorders", difficulty: "Very Hard",
+                hints: ["A 12-year-old boy frequently sits up in bed emitting a panicked scream during deep sleep.", "During the episode, he shows intense autonomic arousal and cannot be comforted by his parents.", "Unlike another sleep disorder, he recalls absolutely no dream imagery regarding the event.", "He experiences total amnesia for the entire episode when he wakes up the next morning.", "These terrifying episodes represent an incomplete awakening from deep, restorative sleep."],
+                info: "<strong>Description:</strong> Non-Rapid Eye Movement (NREM) Sleep Arousal Disorders involve recurrent episodes of incomplete awakening from sleep, usually occurring during the first third of the major sleep episode. The DSM-5 specifies two subtypes: Sleepwalking and Sleep Terrors. Sleep terrors are characterized by abrupt terror arousals from sleep, usually beginning with a panicky scream, intense fear, and autonomic arousal. It causes significant distress, mostly for the observing family members. Environmental safety planning is the primary intervention.<br><br><strong>Fun Fact:</strong> Unlike Nightmare Disorder, NREM arousals occur during deep sleep, meaning the individual rarely recalls any dream imagery and has complete amnesia of the event the next day."
+            },
+            {
+                answer: "Hypersomnolence Disorder", difficulty: "Very Hard",
+                hints: ["A 30-year-old man reports debilitating daytime sleepiness despite getting 10 solid hours of rest.", "He frequently and uncontrollably falls asleep during the day, even while eating meals.", "His sleep is never restorative, and waking up fully takes him a remarkably prolonged time.", "This excessive sleepiness plagues him at least three days a week for over three months.", "His exhausting condition is definitively not caused by narcolepsy or sleep apnea."],
+                info: "<strong>Description:</strong> Hypersomnolence Disorder involves self-reported excessive sleepiness despite a main sleep period lasting at least 7 hours. Symptoms include recurrent periods of sleep within the same day, a prolonged main sleep episode (over 9 hours) that is unrefreshing, and severe difficulty being fully awake after abrupt awakening. It must occur at least 3 times a week for 3 months. It causes profound occupational and social impairment. Central nervous system stimulants are often required to maintain daytime wakefulness.<br><br><strong>Fun Fact:</strong> Sleep inertia, colloquially known as 'sleep drunkenness,' is a hallmark of this disorder, where the patient transitions to wakefulness incredibly slowly, appearing confused and clumsy."
+            },
+            {
+                answer: "Restless Legs Syndrome", difficulty: "Very Hard",
+                hints: ["A 55-year-old woman presents to a sleep clinic suffering from severe sleep-onset insomnia.", "She describes a powerful urge to move her legs to relieve a creepy-crawly sensation.", "This urge strictly begins or dramatically worsens when she lies down to rest in the evening.", "Getting out of bed to walk or stretch temporarily relieves the uncomfortable sensation.", "The symptoms are definitively not caused by muscle cramps, arthritis, or medication side effects."],
+                info: "<strong>Description:</strong> Restless Legs Syndrome (RLS) is a neurological sleep-wake disorder characterized by an urge to move the legs, usually accompanied by uncomfortable sensations in the legs. These symptoms begin or worsen during periods of rest, are partially or totally relieved by movement, and are worse in the evening or at night. The symptoms must occur at least 3 times a week for 3 months. It causes significant distress and severely fragments sleep. Thorough medical evaluation is necessary to rule out secondary causes.<br><br><strong>Fun Fact:</strong> RLS is highly correlated with iron deficiency in the brain affecting dopamine functioning; therefore, dopamine agonists commonly used in Parkinson's disease are highly effective treatments."
+            },
+            {
+                answer: "Central Sleep Apnea", difficulty: "Very Hard",
+                hints: ["A 60-year-old man with a history of heart failure complains of severely unrefreshing sleep.", "A sleep study records five or more apneic events per hour throughout the night.", "Critically, during these breathing pauses, his body displays absolutely zero respiratory effort.", "His breathing follows a distinct periodic crescendo-decrescendo pattern.", "This life-threatening condition is not caused by a physical obstruction in his airway."],
+                info: "<strong>Description:</strong> Central Sleep Apnea is defined by evidence from polysomnography of five or more central apneas per hour of sleep. Unlike Obstructive Sleep Apnea, where the individual tries to breathe against a collapsed physical airway, Central Sleep Apnea is characterized by an absolute lack of respiratory effort. The brain essentially fails to send the signal to the breathing muscles. It causes significant physiological stress and sleep fragmentation. Treatment focuses on optimizing the underlying medical condition and utilizing specialized positive airway pressure devices.<br><br><strong>Fun Fact:</strong> The DSM-5 specifies a subtype called Cheyne-Stokes breathing, characterized by a periodic pattern of tidal volumes, which is highly indicative of severe underlying congestive heart failure."
+            },
+            {
+                answer: "Developmental Coordination Disorder", difficulty: "Very Hard",
+                hints: ["An 8-year-old boy is described by his teachers and peers as exceptionally clumsy.", "His execution of coordinated motor skills falls drastically below age-appropriate expectations.", "He constantly drops items, trips over flat surfaces, and struggles with scissors and handwriting.", "His severe motor deficits actively impair his academic productivity and daily functioning.", "A neurologist confirms these issues are not caused by cerebral palsy or muscular dystrophy."],
+                info: "<strong>Description:</strong> Developmental Coordination Disorder is a neurodevelopmental condition characterized by the acquisition and execution of coordinated motor skills that are substantially below expectations given the individual's chronological age and opportunities for learning. Difficulties manifest as clumsiness (dropping objects), as well as slowness and inaccuracy of performance of motor skills (handwriting). It causes significant interference with academic achievement and daily life. It typically presents in early childhood. Occupational therapy is the primary intervention for improving motor planning.<br><br><strong>Fun Fact:</strong> This diagnosis is intended to capture what was historically called 'dyspraxia' or 'clumsy child syndrome,' strictly after ruling out severe neurological hardware issues."
+            },
+            {
+                answer: "Frontotemporal Neurocognitive Disorder", difficulty: "Very Hard",
+                hints: ["A 52-year-old man is brought in by his family due to a stark, sudden personality change.", "He displays extreme behavioral disinhibition, apathy, and highly inappropriate social conduct.", "He has developed hyperorality, frequently attempting to eat completely inedible objects.", "His memory and spatial navigation remain surprisingly intact despite his behavioral collapse.", "Brain imaging reveals severe, localized atrophy specifically in anterior brain regions."],
+                info: "<strong>Description:</strong> Frontotemporal Neurocognitive Disorder requires criteria for NCD to be met, alongside an insidious onset and gradual progression of behavioral or language variant symptoms. The behavioral variant requires at least three features: behavioral disinhibition, apathy, loss of empathy, perseverative behavior, or hyperorality. A prominent decline in social cognition and executive abilities is the hallmark. It causes profound distress to the family due to the loss of the patient's personality. No curative treatments exist; management focuses on symptom control.<br><br><strong>Fun Fact:</strong> Unlike Alzheimer's disease, which initially devastates memory, this disorder primarily attacks the frontal lobes first, leading to stark personality changes while memory remains relatively preserved."
+            },
+            {
+                answer: "Substance/Medication-Induced Psychotic Disorder", difficulty: "Very Hard",
+                hints: ["A 24-year-old man is brought to the ER by police exhibiting severe, violent paranoia.", "He suffers from intense auditory hallucinations and complex delusions of persecution.", "These psychotic symptoms erupted immediately following a massive overdose of amphetamines.", "His medical records confirm he has zero history of psychotic symptoms when he is sober.", "Psychiatrists expect the delusions to completely clear once his system detoxifies."],
+                info: "<strong>Description:</strong> Substance/Medication-Induced Psychotic Disorder requires the presence of prominent delusions and/or hallucinations. Crucially, there must be evidence that the symptoms developed during or soon after substance intoxication or withdrawal, and the involved substance is biologically capable of producing the symptoms. The disorder must not be better explained by an independent psychotic disorder like schizophrenia. It causes severe acute impairment. Treatment primarily involves medical detoxification and short-term symptom management.<br><br><strong>Fun Fact:</strong> High-dose abuse of dopamine-agonizing drugs like amphetamines can induce a temporary psychosis that perfectly mimics the positive symptoms of acute schizophrenia."
+            },
+            {
+                answer: "Unspecified Catatonia", difficulty: "Very Hard",
+                hints: ["A 30-year-old woman in the psychiatric unit exhibits a profound psychomotor disturbance.", "She demonstrates waxy flexibility, holding her limbs rigidly in awkward positions when moved by staff.", "She is entirely mute and displays extreme negativism toward all clinical instructions.", "She exhibits echolalia, robotically mimicking the speech of the attending nurses.", "The exact underlying mental or medical disorder causing these motor symptoms remains unknown."],
+                info: "<strong>Description:</strong> Catatonia is characterized by the presence of three or more of 12 psychomotor features, including stupor, waxy flexibility, mutism, negativism, posturing, agitation, and echolalia. In the DSM-5, Catatonia is not a standalone primary diagnosis; it is used as a specifier. The 'Unspecified' designation is utilized when catatonic symptoms are severely present but the underlying mental or medical disorder is unknown or still actively under investigation. It is a severe clinical state requiring immediate medical attention. It can be fatal if untreated due to autonomic instability.<br><br><strong>Fun Fact:</strong> Catatonia responds remarkably well and rapidly to high doses of benzodiazepines (like Lorazepam) or, in life-threatening cases, Electroconvulsive Therapy (ECT)."
+            },
+            {
+                answer: "Childhood-Onset Fluency Disorder (Stuttering)", difficulty: "Very Hard",
+                hints: ["A 5-year-old boy shows severe disturbances in the normal fluency and timing of his speech.", "He frequently exhibits rapid sound and syllable repetitions when trying to start sentences.", "He experiences highly visible, tense physical blocking during pauses in his speech.", "He often forces words out with an excessive amount of physical facial tension.", "The severe speech disturbance causes him intense anxiety regarding communication."],
+                info: "<strong>Description:</strong> Childhood-Onset Fluency Disorder, commonly known as stuttering, involves a disturbance in the normal fluency and time patterning of speech that is inappropriate for the individual's age and language skills. Symptoms include sound and syllable repetitions, sound prolongations, broken words, audible or silent blocking, and words produced with an excess of physical tension. It causes significant distress and social impairment. Speech therapy focuses on fluency-shaping and stuttering modification techniques. Early intervention yields the best outcomes.<br><br><strong>Fun Fact:</strong> Stuttering is highly responsive to emotional states; individuals often stutter more when anxious, yet many individuals who stutter severely while talking can sing perfectly fluently."
+            },
+            {
+                answer: "Social (Pragmatic) Communication Disorder", difficulty: "Very Hard",
+                hints: ["A 9-year-old girl profoundly struggles to use language appropriately in social contexts.", "She has persistent, severe difficulties in the social use of verbal and nonverbal communication.", "She speaks to her teachers with the exact same casual tone she uses with her peers.", "She cannot understand idioms, metaphors, or anything that is not explicitly stated.", "Critically, she does NOT exhibit any restricted or repetitive behaviors or interests."],
+                info: "<strong>Description:</strong> Social (Pragmatic) Communication Disorder is characterized by primary difficulties in the social use of verbal and nonverbal communication. Deficits include problems using communication for social purposes appropriately, impairment in the ability to change communication to match context, and difficulty understanding what is not explicitly stated (idioms, humor). It causes significant functional limitations in effective communication and social participation. Speech-language therapy targets specific pragmatic skills. It is highly prevalent in childhood.<br><br><strong>Fun Fact:</strong> This diagnosis was created to capture individuals who demonstrate the severe social deficits seen in Autism, but who absolutely lack the restricted, repetitive behaviors required for an ASD diagnosis."
+            },
+            {
+                answer: "Pedophilic Disorder", difficulty: "Very Hard",
+                hints: ["A 35-year-old man is mandated to a specialized forensic psychiatric therapy program.", "For over six months, he has harbored recurrent, intense sexually arousing urges.", "These specific urges strictly involve sexual activity with a prepubescent child.", "He has acted on these illicit urges, causing immense harm and legal consequences.", "He is significantly older than his targeted demographic and over the age of 16."],
+                info: "<strong>Description:</strong> Pedophilic Disorder is a Paraphilic Disorder defined by recurrent, intense sexually arousing fantasies, urges, or behaviors involving sexual activity with a prepubescent child (generally age 13 or younger) spanning at least 6 months. To meet clinical criteria, the individual must have acted on these urges or be significantly distressed by them. Furthermore, the individual must be at least 16 years of age and at least 5 years older than the child. It requires highly specialized forensic treatment. Risk management and relapse prevention are the primary therapeutic goals.<br><br><strong>Fun Fact:</strong> The DSM-5 emphasizes that simply having paraphilic arousal is not enough for a clinical diagnosis; it must cause distress or entail harm to cross the threshold into a 'disorder.'"
+            },
+            {
+                answer: "Exhibitionistic Disorder", difficulty: "Very Hard",
+                hints: ["A 28-year-old man was recently apprehended by police in a public metropolitan park.", "He reports recurrent, intense arousal stemming from exposing his genitals to unsuspecting strangers.", "This specific pattern of fantasies and highly risky behaviors has lasted for over six months.", "He has repeatedly acted on these sexual urges with nonconsenting individuals in public.", "His physiological arousal relies entirely on the shock and surprise of the involuntary observer."],
+                info: "<strong>Description:</strong> Exhibitionistic Disorder is a Paraphilic Disorder characterized by recurrent, intense sexually arousing fantasies, sexual urges, or behaviors involving the exposure of one's genitals to an unsuspecting person. These symptoms must have been present for at least 6 months. A diagnosis requires that the individual has acted on these sexual urges with a nonconsenting person, or that the urges cause clinically significant distress. It frequently results in arrest and severe legal consequences. Cognitive behavioral therapy targets distorted thinking patterns and impulse control.<br><br><strong>Fun Fact:</strong> The psychological thrill in this disorder is fundamentally dependent on the fear response of the involuntary observer; if the observer is consenting, the arousal often fails to materialize."
+            }
+        ];
+
+        let caseQueue = [];
+        let currentCase;
+        let currentAttempt = 0;
+        let maxAttempts = 0;
+        let gameOver = false;
+        let totalCasesInQueue = 0;
+        let casesPlayedCount = 0;
+
+        const inputEl = document.getElementById('guess-input');
+        const listEl = document.getElementById('autocomplete-list');
+        const toggleBtn = document.getElementById('dropdown-toggle');
+        const trackerEl = document.getElementById('case-tracker');
+        const clueBtn = document.getElementById('clue-btn');
+        const clueTextDisplay = document.getElementById('clue-text-display');
+        const postGameInfoDetails = document.getElementById('post-game-info');
+        const postGameInfoContent = document.getElementById('post-game-info-content');
+
+        window.onload = () => {
+            setupAutocomplete();
+            handleDifficultyChange(); 
+        };
+
+        function handleDifficultyChange() {
+            const difficulty = document.getElementById('difficulty-select').value;
+            let filteredCases = casesBank;
+            if (difficulty !== "All") {
+                filteredCases = casesBank.filter(c => c.difficulty === difficulty);
+            }
+            caseQueue = filteredCases.map(value => ({ value, sort: Math.random() }))
+                                     .sort((a, b) => a.sort - b.sort)
+                                     .map(({ value }) => value);
+            
+            totalCasesInQueue = caseQueue.length;
+            casesPlayedCount = 0;
+            loadNextCaseInQueue();
+        }
+
+        function loadNextCaseInQueue() {
+            if (caseQueue.length === 0) {
+                document.getElementById('hints-container').innerHTML = '';
+                document.getElementById('guesses-container').innerHTML = '';
+                document.getElementById('message').innerText = "🎉 You've completed all cases in this category!";
+                document.getElementById('message').style.color = 'var(--primary)';
+                document.getElementById('play-again-btn').style.display = 'none';
+                postGameInfoDetails.style.display = 'none';
+                clueBtn.style.display = 'none';
+                clueTextDisplay.style.display = 'none';
+                inputEl.disabled = true;
+                document.getElementById('submit-btn').disabled = true;
+                trackerEl.innerText = `Finished ${totalCasesInQueue}/${totalCasesInQueue}`;
+                return;
+            }
+
+            currentCase = caseQueue.pop();
+            casesPlayedCount++;
+            trackerEl.innerText = `Case ${casesPlayedCount} of ${totalCasesInQueue}`;
+
+            currentAttempt = 0;
+            gameOver = false;
+            maxAttempts = currentCase.hints.length;
+
+            document.getElementById('hints-container').innerHTML = '';
+            document.getElementById('guesses-container').innerHTML = '';
+            document.getElementById('message').innerText = '';
+            
+            postGameInfoDetails.style.display = 'none';
+            postGameInfoDetails.removeAttribute('open');
+            postGameInfoContent.innerHTML = '';
+
+            clueBtn.style.display = 'flex';
+            clueTextDisplay.style.display = 'none';
+            inputEl.value = '';
+            inputEl.disabled = false;
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('play-again-btn').style.display = 'none';
+
+            renderNextHint();
+            inputEl.focus();
+        }
+
+        function revealExtraClue() {
+            clueBtn.style.display = 'none';
+            const generatedHint = `💡 Hint: The diagnosis starts with the letter "${currentCase.answer.charAt(0)}"`;
+            clueTextDisplay.innerText = currentCase.extraClue ? currentCase.extraClue : generatedHint;
+            clueTextDisplay.style.display = 'block';
+        }
+
+        function setupAutocomplete() {
+            inputEl.addEventListener('input', function() {
+                const val = this.value.toLowerCase().trim();
+                closeAllLists();
+                if (!val) return;
+
+                let matches = wordBank.filter(word => word.toLowerCase().includes(val));
+                for (const [abbr, fullTerm] of Object.entries(termAliases)) {
+                    if (abbr.includes(val) || val.includes(abbr)) {
+                        if (!matches.includes(fullTerm)) {
+                            matches.push(fullTerm);
+                        }
+                    }
+                }
+                matches.sort();
+                populateList(matches);
+            });
+
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (listEl.style.display === 'block') {
+                    closeAllLists();
+                } else {
+                    populateList(wordBank);
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== inputEl && e.target !== toggleBtn) {
+                    closeAllLists();
+                }
+            });
+        }
+
+        function populateList(arr) {
+            listEl.innerHTML = '';
+            if (arr.length === 0) {
+                closeAllLists();
+                return;
+            }
+            const reverseAliases = {};
+            for (const [key, value] of Object.entries(termAliases)) {
+                reverseAliases[value] = key.toUpperCase();
+            }
+
+            arr.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                let displayText = item;
+                if (reverseAliases[item]) {
+                    div.innerHTML = `<span>${item}</span><span class="autocomplete-item-alias">${reverseAliases[item]}</span>`;
+                } else {
+                    div.innerText = item;
+                }
+                div.addEventListener('click', function() {
+                    inputEl.value = item; 
+                    closeAllLists();
+                });
+                listEl.appendChild(div);
+            });
+            listEl.style.display = 'block';
+        }
+
+        function closeAllLists() {
+            listEl.style.display = 'none';
+        }
+
+        function renderNextHint() {
+            if (currentAttempt < maxAttempts) {
+                const hintsContainer = document.getElementById('hints-container');
+                const hintCard = document.createElement('div');
+                hintCard.className = 'hint-card';
+                
+                const hintTitle = document.createElement('div');
+                hintTitle.className = 'hint-title';
+                hintTitle.innerText = `Clinical Hint ${currentAttempt + 1} of ${maxAttempts}`;
+                
+                const hintText = document.createElement('div');
+                hintText.className = 'hint-text';
+                hintText.innerText = currentCase.hints[currentAttempt];
+
+                hintCard.appendChild(hintTitle);
+                hintCard.appendChild(hintText);
+                hintsContainer.appendChild(hintCard);
+            }
+        }
+
+        function handleGuess() {
+            if (gameOver) return;
+
+            let guess = inputEl.value.trim();
+            const guessLower = guess.toLowerCase();
+
+            if (termAliases[guessLower]) {
+                guess = termAliases[guessLower];
+            }
+
+            const exactMatch = wordBank.find(w => w.toLowerCase() === guess.toLowerCase());
+            if (exactMatch) {
+                guess = exactMatch;
+            }
+
+            if (!wordBank.includes(guess)) {
+                alert("Please select a valid term from the DSM-5 list or use a recognized abbreviation.");
+                return;
+            }
+
+            const isCorrect = (guess === currentCase.answer);
+            updateGuessesUI(guess, isCorrect);
+            inputEl.value = ""; 
+            closeAllLists();
+
+            if (isCorrect) {
+                endGame(true);
+            } else {
+                currentAttempt++;
+                if (currentAttempt >= maxAttempts) {
+                    endGame(false);
+                } else {
+                    renderNextHint();
+                }
+            }
+        }
+
+        function updateGuessesUI(guess, isCorrect) {
+            const container = document.getElementById('guesses-container');
+            const row = document.createElement('div');
+            row.className = `guess-row ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            const textSpan = document.createElement('span');
+            textSpan.innerText = guess;
+
+            const numberSpan = document.createElement('span');
+            numberSpan.className = 'guess-number';
+            numberSpan.innerText = `Attempt ${currentAttempt + 1}`;
+
+            row.appendChild(textSpan);
+            row.appendChild(numberSpan);
+            
+            container.insertBefore(row, container.firstChild);
+        }
+
+        function endGame(win) {
+            gameOver = true;
+            inputEl.disabled = true;
+            document.getElementById('submit-btn').disabled = true;
+            clueBtn.style.display = 'none';
+            closeAllLists();
+            
+            const messageEl = document.getElementById('message');
+            if (win) {
+                messageEl.innerText = `Accurate Diagnosis! Patient diagnosed in ${currentAttempt + 1} attempt(s).`;
+                messageEl.style.color = 'var(--correct)';
+            } else {
+                messageEl.innerText = `Consultation needed. The correct diagnosis was: ${currentCase.answer}`;
+                messageEl.style.color = 'var(--incorrect)'; 
+            }
+
+            postGameInfoContent.innerHTML = `<strong>Diagnosis: ${currentCase.answer}</strong><br><br>${currentCase.info}`;
+            postGameInfoDetails.style.display = 'block';
+            document.getElementById('play-again-btn').style.display = 'block';
+        }
+
+        inputEl.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+                handleGuess();
+            }
+        });
+    </script>
+</body>
+</html>
