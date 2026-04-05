@@ -1241,26 +1241,44 @@ const casesBank = [
         }
 
         function setupAutocomplete() {
-            inputEl.addEventListener('input', function() {
-                const val = this.value.toLowerCase().trim();
-                closeAllLists();
-                if (!val) return;
+    inputEl.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
+        closeAllLists();
+        if (!val) return;
 
-                // CHANGED: Use .startsWith() instead of .includes() for strict alphabetical search
-                let matches = wordBank.filter(word => word.toLowerCase().startsWith(val));
-                
-                for (const [abbr, fullTerm] of Object.entries(termAliases)) {
-                    // Check if abbreviation starts with the input (e.g., 'a' matches 'adhd')
-                    if (abbr.startsWith(val)) {
-                        if (!matches.includes(fullTerm)) {
-                            matches.push(fullTerm);
-                        }
-                    }
+        // GENERAL SEARCH: finds the text anywhere in the name (e.g., "tic" finds "Tic Disorder")
+        let matches = wordBank.filter(word => word.toLowerCase().includes(val));
+        
+        // Check abbreviations/aliases
+        for (const [abbr, fullTerm] of Object.entries(termAliases)) {
+            if (abbr.includes(val)) {
+                if (!matches.includes(fullTerm)) {
+                    matches.push(fullTerm);
                 }
-                matches.sort();
-                populateList(matches);
-            });
+            }
+        }
 
+        // ALPHABETICAL SORT: Restored to your original simple A-Z style
+        matches.sort();
+        populateList(matches);
+    });
+
+    // DROPDOWN FIX: Ensures the menu opens when clicking the button OR the icon inside it
+    toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); 
+        if (listEl.style.display === 'block') {
+            closeAllLists();
+        } else {
+            populateList(wordBank);
+        }
+    });
+
+    // CLICK-OUTSIDE FIX: Uses .contains() to avoid closing when you click the icon
+    document.addEventListener('click', function(e) {
+        if (e.target !== inputEl && !toggleBtn.contains(e.target)) {
+            closeAllLists();
+        }
+    });
             toggleBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 if (listEl.style.display === 'block') {
@@ -1427,24 +1445,21 @@ inputEl.addEventListener('keydown', function (e) {
         const val = this.value.toLowerCase().trim();
         
         if (val) {
-            // 1. Check how many full names in your wordBank start with your text
-            let matches = wordBank.filter(word => word.toLowerCase().startsWith(val));
+            // Find any match that includes your text
+            let matches = wordBank.filter(word => word.toLowerCase().includes(val));
             
-            // 2. Check if any abbreviations start with your text
             for (const [abbr, fullTerm] of Object.entries(termAliases)) {
-                if (abbr.startsWith(val) && !matches.includes(fullTerm)) {
+                if (abbr.includes(val) && !matches.includes(fullTerm)) {
                     matches.push(fullTerm);
                 }
             }
 
-            // 3. If there is exactly ONE logical match, force the auto-fill immediately
+            // If there's only one logical result, auto-fill it for the user
             if (matches.length === 1) {
                 this.value = matches[0];
                 closeAllLists();
             }
         }
-
-        // 4. Now run the diagnosis. If we auto-filled, it will now pass the 'valid term' check.
         handleGuess();
     }
 });
