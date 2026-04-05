@@ -1420,13 +1420,34 @@ const casesBank = [
             postGameInfoDetails.style.display = 'block';
             document.getElementById('play-again-btn').style.display = 'block';
         }
-
-        inputEl.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault(); 
-                handleGuess();
+// This listener bypasses the visual menu and looks at your data directly
+inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); 
+        const val = this.value.toLowerCase().trim();
+        
+        if (val) {
+            // 1. Check how many full names in your wordBank start with your text
+            let matches = wordBank.filter(word => word.toLowerCase().startsWith(val));
+            
+            // 2. Check if any abbreviations start with your text
+            for (const [abbr, fullTerm] of Object.entries(termAliases)) {
+                if (abbr.startsWith(val) && !matches.includes(fullTerm)) {
+                    matches.push(fullTerm);
+                }
             }
-        });
+
+            // 3. If there is exactly ONE logical match, force the auto-fill immediately
+            if (matches.length === 1) {
+                this.value = matches[0];
+                closeAllLists();
+            }
+        }
+
+        // 4. Now run the diagnosis. If we auto-filled, it will now pass the 'valid term' check.
+        handleGuess();
+    }
+});
 
      // ==================== INJECT DISORDERS INTO GLOSSARY ====================
         // This adds the major disorders to your glossary so the map can find them 1-to-1!
